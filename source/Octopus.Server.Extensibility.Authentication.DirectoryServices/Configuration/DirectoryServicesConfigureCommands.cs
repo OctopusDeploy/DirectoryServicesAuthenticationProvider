@@ -55,7 +55,7 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.Configur
 
         public void Handle(string webAuthenticationMode)
         {
-            var isEnabled = webAuthenticationMode == "Domain";
+            var isEnabled = "Domain".Equals(webAuthenticationMode, StringComparison.InvariantCultureIgnoreCase);
             activeDirectoryConfiguration.SetIsEnabled(isEnabled);
             log.Info($"Active directory IsEnabled set, based on webAuthenticationMode={webAuthenticationMode}, to: {isEnabled}");
         }
