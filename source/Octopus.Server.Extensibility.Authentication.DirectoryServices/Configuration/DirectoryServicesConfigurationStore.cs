@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using Octopus.Configuration;
@@ -139,7 +140,7 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.Configur
             var authenticationMode = authenticationConfigurationStore.GetAuthenticationMode();
             var doc = new DirectoryServicesConfiguration("DirectoryServices", "Octopus Deploy")
             {
-                IsEnabled = legacyModes.Contains(authenticationMode.Replace("\"", "")),
+                IsEnabled = legacyModes.Any(x => x.Equals(authenticationMode.Replace("\"", ""), StringComparison.InvariantCultureIgnoreCase)),
                 ActiveDirectoryContainer = activeDirectoryContainer,
                 AuthenticationScheme = authenticationScheme,
                 AllowFormsAuthenticationForDomainUsers = allowFormsAuth,
