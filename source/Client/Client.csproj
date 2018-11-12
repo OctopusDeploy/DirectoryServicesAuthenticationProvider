@@ -11,8 +11,8 @@
     <Description>Octopus Deploy Client Extensibility for Directory Services</Description>
     <PackageId>Octopus.Client.Extensibility.Authentication.DirectoryServices</PackageId>
     <PackageIconUrl>http://i.octopusdeploy.com/resources/Avatar3_360.png</PackageIconUrl>
-    <PackageLicenseUrl>https://octopus.com/</PackageLicenseUrl>
-    <PackageProjectUrl>https://octopus.com/</PackageProjectUrl>
+    <PackageLicenseUrl>https://github.com/OctopusDeploy/DirectoryServicesAuthenticationProvider/blob/master/LICENSE.txt</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/OctopusDeploy/DirectoryServicesAuthenticationProvider</PackageProjectUrl>
   </PropertyGroup>
 
   <ItemGroup>
