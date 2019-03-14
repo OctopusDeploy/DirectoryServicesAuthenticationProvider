@@ -19,16 +19,16 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.Configur
 
         public override string Description => "Active Directory authentication settings";
 
-        public override IEnumerable<ConfigurationValue> GetConfigurationValues()
+        public override IEnumerable<IConfigurationValue> GetConfigurationValues()
         {
             var isEnabled = ConfigurationDocumentStore.GetIsEnabled();
 
-            yield return new ConfigurationValue("Octopus.WebPortal.ActiveDirectoryIsEnabled", isEnabled.ToString(), isEnabled, "Is Enabled");
-            yield return new ConfigurationValue("Octopus.WebPortal.ActiveDirectoryContainer", ConfigurationDocumentStore.GetActiveDirectoryContainer(), isEnabled && !string.IsNullOrWhiteSpace(ConfigurationDocumentStore.GetActiveDirectoryContainer()), "Active Directory Container");
-            yield return new ConfigurationValue("Octopus.WebPortal.AuthenticationScheme", ConfigurationDocumentStore.GetAuthenticationScheme().ToString(), isEnabled, "Authentication Scheme");
-            yield return new ConfigurationValue("Octopus.WebPortal.AllowFormsAuthenticationForDomainUsers", ConfigurationDocumentStore.GetAllowFormsAuthenticationForDomainUsers().ToString(), isEnabled, "Allow forms authentication");
-            yield return new ConfigurationValue("Octopus.WebPortal.ExternalSecurityGroupsDisabled", ConfigurationDocumentStore.GetAreSecurityGroupsEnabled().ToString(), isEnabled, "Security groups enabled");
-            yield return new ConfigurationValue("Octopus.WebPortal.ActiveDirectoryAllowAutoUserCreation", ConfigurationDocumentStore.GetAllowAutoUserCreation().ToString(), isEnabled, "Allow auto user creation");
+            yield return new ConfigurationValue<bool>("Octopus.WebPortal.ActiveDirectoryIsEnabled", isEnabled, isEnabled, "Is Enabled");
+            yield return new ConfigurationValue<string>("Octopus.WebPortal.ActiveDirectoryContainer", ConfigurationDocumentStore.GetActiveDirectoryContainer(), isEnabled && !string.IsNullOrWhiteSpace(ConfigurationDocumentStore.GetActiveDirectoryContainer()), "Active Directory Container");
+            yield return new ConfigurationValue<string>("Octopus.WebPortal.AuthenticationScheme", ConfigurationDocumentStore.GetAuthenticationScheme().ToString(), isEnabled, "Authentication Scheme");
+            yield return new ConfigurationValue<bool>("Octopus.WebPortal.AllowFormsAuthenticationForDomainUsers", ConfigurationDocumentStore.GetAllowFormsAuthenticationForDomainUsers(), isEnabled, "Allow forms authentication");
+            yield return new ConfigurationValue<bool>("Octopus.WebPortal.ExternalSecurityGroupsDisabled", ConfigurationDocumentStore.GetAreSecurityGroupsEnabled(), isEnabled, "Security groups enabled");
+            yield return new ConfigurationValue<bool>("Octopus.WebPortal.ActiveDirectoryAllowAutoUserCreation", ConfigurationDocumentStore.GetAllowAutoUserCreation(), isEnabled, "Allow auto user creation");
         }
 
         public override void BuildMappings(IResourceMappingsBuilder builder)

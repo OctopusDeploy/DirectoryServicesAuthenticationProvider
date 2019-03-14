@@ -23,8 +23,8 @@
     <PackageReference Include="Microsoft.CSharp" Version="4.5.0" />
     <PackageReference Include="Octopus.Configuration" Version="2.0.1" />
     <PackageReference Include="Octopus.Diagnostics" Version="1.2.2" />
-    <PackageReference Include="Octopus.Server.Extensibility.Authentication" Version="9.0.3" />
-    <PackageReference Include="Octopus.Server.Extensibility" Version="6.0.2" />
+    <PackageReference Include="Octopus.Server.Extensibility.Authentication" Version="9.0.4-enh-typedconfig0001" />
+    <PackageReference Include="Octopus.Server.Extensibility" Version="6.0.3-enh-typedconfig0001" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Web\Static\images\directory_services_signin_buttons\microsoft-logo.svg" />
