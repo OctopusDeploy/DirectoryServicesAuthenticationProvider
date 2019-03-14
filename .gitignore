@@ -68,3 +68,4 @@ source/OctopusTools.v2.ncrunchsolution
 TestResult.xml
 !packages.config
 .idea
+**/launchSettings.json
