@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net451;netstandard1.6</TargetFrameworks>
+    <TargetFrameworks>net451;netstandard2.0</TargetFrameworks>
     <RootNamespace>Octopus.Client.Extensibility.Authentication.DirectoryServices</RootNamespace>
     <AssemblyName>Octopus.Client.Extensibility.Authentication.DirectoryServices</AssemblyName>
     <NeutralLanguage>en-US</NeutralLanguage>
@@ -16,7 +16,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Octopus.Client" Version="4.42.4" />
+    <PackageReference Include="Octopus.Client" Version="6.2.0" />
   </ItemGroup>
 
 </Project>
