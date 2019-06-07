@@ -24,7 +24,6 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices
 
             builder.RegisterType<DirectoryServicesConfigurationStore>()
                 .As<IDirectoryServicesConfigurationStore>()
-                .As<IAuthenticationSchemeProvider>()
                 .InstancePerDependency();
 
             builder.RegisterType<DirectoryServicesConfigurationSettings>()

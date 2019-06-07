@@ -1,12 +1,10 @@
 ﻿using System.Net;
 using Octopus.Data.Storage.Configuration;
-using Octopus.Server.Extensibility.Authentication.DirectoryServices.DirectoryServices;
-using Octopus.Server.Extensibility.Authentication.Extensions;
 using Octopus.Server.Extensibility.Extensions.Infrastructure.Configuration;
 
 namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.Configuration
 {
-    public class DirectoryServicesConfigurationStore : ExtensionConfigurationStore<DirectoryServicesConfiguration>, IDirectoryServicesConfigurationStore, IAuthenticationSchemeProvider
+    public class DirectoryServicesConfigurationStore : ExtensionConfigurationStore<DirectoryServicesConfiguration>, IDirectoryServicesConfigurationStore
     {
         public static string SingletonId = "authentication-directoryservices";
 
@@ -15,9 +13,6 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.Configur
         }
 
         public override string Id => SingletonId;
-
-        public string ChallengePath => DirectoryServicesConstants.ChallengePath;
-        public AuthenticationSchemes AuthenticationScheme => GetIsEnabled() ? GetAuthenticationScheme() : AuthenticationSchemes.Anonymous;
 
         public string GetActiveDirectoryContainer()
         {

@@ -1,8 +1,11 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Octopus.Diagnostics;
+using Octopus.Server.Extensibility.Authentication.DirectoryServices.Configuration;
 using Octopus.Server.Extensibility.Authentication.DirectoryServices.DirectoryServices;
 using Octopus.Server.Extensibility.Authentication.HostServices;
 using Octopus.Server.Extensibility.Authentication.Resources;
@@ -13,13 +16,52 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices
 {
     public class IntegratedAuthenticationModule : RegisterEndpoint
     {
-        public IntegratedAuthenticationModule(ILog log, IAuthCookieCreator tokenIssuer, IAuthenticationConfigurationStore authenticationConfigurationStore, IUrlEncoder encoder)
+
+        public IntegratedAuthenticationModule(ILog log, IAuthCookieCreator tokenIssuer, IAuthenticationConfigurationStore authenticationConfigurationStore, IDirectoryServicesConfigurationStore store)
         {
             Add("GET", DirectoryServicesConstants.ChallengePath, context =>
             {
                 if (context.User == null)
                 {
-                    context.Response.StatusCode = 401;
+                    var schemes = new List<string>();
+                    var statusCode = 200;
+
+                    var authenticationSchemes = store.GetAuthenticationScheme();
+                    if (authenticationSchemes.HasFlag(AuthenticationSchemes.Ntlm))
+                    {
+                        schemes.Add("NTLM");
+                        statusCode = 401;
+                    }
+
+                    if (authenticationSchemes.HasFlag(AuthenticationSchemes.Negotiate))
+                    {
+                        schemes.Add("Negotiate");
+                        statusCode = 401;
+                    }
+
+                    if (authenticationSchemes.HasFlag(AuthenticationSchemes.Basic))
+                    {
+                        schemes.Add("Basic");
+                        statusCode = 401;
+                    }
+
+                    if (authenticationSchemes.HasFlag(AuthenticationSchemes.None))
+                    {
+                        statusCode = 403;
+                    }
+                            
+                    if (authenticationSchemes.HasFlag(AuthenticationSchemes.Digest))
+                    {
+                        statusCode = 403;
+                    }
+                            
+                    if (schemes.Any())
+                    {
+                        context.Response.Headers.Add("WWW-Authenticate", schemes.ToArray());
+                    }
+                            
+                    context.Response.StatusCode = statusCode;
+                    
                     return Task.FromResult(0);
                 }
 
