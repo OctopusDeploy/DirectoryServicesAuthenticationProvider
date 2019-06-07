@@ -10,13 +10,11 @@ using Octopus.Server.Extensibility.Authentication.DirectoryServices.DirectorySer
 using Octopus.Server.Extensibility.Authentication.HostServices;
 using Octopus.Server.Extensibility.Authentication.Resources;
 using Octopus.Server.Extensibility.Extensions.Infrastructure.Web.Api;
-using Octopus.Server.Extensibility.HostServices.Web;
 
 namespace Octopus.Server.Extensibility.Authentication.DirectoryServices
 {
     public class IntegratedAuthenticationModule : RegisterEndpoint
     {
-
         public IntegratedAuthenticationModule(ILog log, IAuthCookieCreator tokenIssuer, IAuthenticationConfigurationStore authenticationConfigurationStore, IDirectoryServicesConfigurationStore store)
         {
             Add("GET", DirectoryServicesConstants.ChallengePath, context =>
@@ -45,11 +43,6 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices
                         statusCode = 401;
                     }
 
-                    if (authenticationSchemes.HasFlag(AuthenticationSchemes.None))
-                    {
-                        statusCode = 403;
-                    }
-                            
                     if (authenticationSchemes.HasFlag(AuthenticationSchemes.Digest))
                     {
                         statusCode = 403;
@@ -57,7 +50,7 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices
                             
                     if (schemes.Any())
                     {
-                        context.Response.Headers.Add("WWW-Authenticate", schemes.ToArray());
+                        context.Response.WithHeader("WWW-Authenticate", schemes.ToArray());
                     }
                             
                     context.Response.StatusCode = statusCode;
