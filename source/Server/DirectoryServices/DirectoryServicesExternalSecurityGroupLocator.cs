@@ -144,33 +144,35 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.Director
             }
         }
 
-        static void ReadAuthorizationGroups(IUserPrincipalWrapper principal, ICollection<string> groups, CancellationToken cancellationToken)
+        void ReadAuthorizationGroups(IUserPrincipalWrapper principal, ICollection<string> groups, CancellationToken cancellationToken)
         {
             ReadGroups(principal.GetAuthorizationGroups(), groups, cancellationToken);
         }
 
-        static void ReadUserGroups(IUserPrincipalWrapper principal, ICollection<string> groups, CancellationToken cancellationToken)
+        void ReadUserGroups(IUserPrincipalWrapper principal, ICollection<string> groups, CancellationToken cancellationToken)
         {
             ReadGroups(principal.GetGroups(), groups, cancellationToken);
         }
 
-        static void ReadGroups(IEnumerable<IPrincipalWrapper> groupPrincipals, ICollection<string> groups, CancellationToken cancellationToken)
+        void ReadGroups(IEnumerable<IPrincipalWrapper> groupPrincipals, ICollection<string> groups, CancellationToken cancellationToken)
         {
             var iterGroup = groupPrincipals.GetEnumerator();
             using (iterGroup)
             {
-                while (iterGroup.MoveNext())
+                try
                 {
-                    try
+                    while (iterGroup.MoveNext())
                     {
                         var p = iterGroup.Current;
                         groups.Add(p.Sid.Value);
 
                         if (cancellationToken.IsCancellationRequested) return;
                     }
-                    catch (NoMatchingPrincipalException)
-                    {
-                    }
+                }
+                catch (NoMatchingPrincipalException ex)
+                {
+                    // Don't log it as an Error, it's expected to fail in some situations
+                    log.Verbose(ex);
                 }
             }
         }
