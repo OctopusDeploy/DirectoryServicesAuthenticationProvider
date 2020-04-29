@@ -62,8 +62,8 @@ namespace DirectoryServices.Tests
             userPrincipalFinder.FindByIdentity(null, null).ReturnsForAnyArgs(userPrincipal);
 
             var authGroupsException = new Exception("AuthorizationGroups Exception");
-            userPrincipal.GetAuthorizationGroups().ThrowsForAnyArgs(authGroupsException);
-            userPrincipal.GetGroups().Returns(new[] {new FakeGroupPrincipal(groupSid)});
+            userPrincipal.GetAuthorizationGroups(CancellationToken.None).ThrowsForAnyArgs(authGroupsException);
+            userPrincipal.GetGroups(CancellationToken.None).Returns(new[] {new FakeGroupPrincipal(groupSid)});
                 
             var result = locator.GetGroupIdsForUser("Bob", CancellationToken.None);
             result.WasAbleToRetrieveGroups.ShouldBeTrue();
@@ -80,10 +80,10 @@ namespace DirectoryServices.Tests
             userPrincipalFinder.FindByIdentity(null, null).ReturnsForAnyArgs(userPrincipal);
 
             var authGroupsException = new Exception("AuthorizationGroups Exception");
-            userPrincipal.GetAuthorizationGroups().ThrowsForAnyArgs(authGroupsException);
+            userPrincipal.GetAuthorizationGroups(CancellationToken.None).ThrowsForAnyArgs(authGroupsException);
             
             var groupsException = new Exception("Groups Exception");
-            userPrincipal.GetGroups().ThrowsForAnyArgs(groupsException);
+            userPrincipal.GetGroups(CancellationToken.None).ThrowsForAnyArgs(groupsException);
                 
             var result = locator.GetGroupIdsForUser("Bob", CancellationToken.None);
             
@@ -101,7 +101,7 @@ namespace DirectoryServices.Tests
             var userPrincipal = Substitute.For<IUserPrincipalWrapper>();
             userPrincipalFinder.FindByIdentity(null, null).ReturnsForAnyArgs(userPrincipal);
 
-            userPrincipal.GetAuthorizationGroups().ReturnsForAnyArgs(new[] {new FakeGroupPrincipal(groupSid)});
+            userPrincipal.GetAuthorizationGroups(CancellationToken.None).ReturnsForAnyArgs(new[] {new FakeGroupPrincipal(groupSid)});
             
             var result = locator.GetGroupIdsForUser("Bob", CancellationToken.None);
             
