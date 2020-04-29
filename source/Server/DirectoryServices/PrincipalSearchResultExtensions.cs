@@ -4,9 +4,9 @@ using System.DirectoryServices.AccountManagement;
 
 namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.DirectoryServices
 {
-    public static class PrincipalSearchResultExtensions
+    internal static class PrincipalSearchResultExtensions
     {
-        public static IEnumerable<TOut> TrySelect<T, TOut>(this PrincipalSearchResult<T> collection, Func<T, TOut> projection) where T : Principal
+        internal static IEnumerable<TOut> TrySelect<T, TOut>(this PrincipalSearchResult<T> collection, Func<T, TOut> projection) where T : Principal
         {
             var results = new List<TOut>();
             
