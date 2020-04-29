@@ -27,9 +27,9 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.Director
         }
 
         public IEnumerable<IPrincipalWrapper> GetAuthorizationGroups()
-            => userPrincipal.GetAuthorizationGroups().Select(p => new PrincipalWrapper(p));
+            => userPrincipal.GetAuthorizationGroups().TrySelect(p => new PrincipalWrapper(p));
 
         public IEnumerable<IPrincipalWrapper> GetGroups()
-            => userPrincipal.GetGroups().Select(p => new PrincipalWrapper(p));
+            => userPrincipal.GetGroups().TrySelect(p => new PrincipalWrapper(p));
     }
 }
