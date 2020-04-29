@@ -114,7 +114,7 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.Director
                         try
                         {
                             // Reads inherited groups - this fails in some situations
-                            ReadAuthorizationGroups(principal, groups, cancellationToken);
+                            ReadAuthorizationGroups(principal, groups);
                             return new DirectoryServicesExternalSecurityGroupLocatorResult(groups);
                         }
                         catch (Exception ex) when (!(ex is PrincipalServerDownException))
@@ -128,7 +128,7 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.Director
 
                     // Reads just the groups they are a member of - more reliable but not ideal
                     using (var principal = userPrincipalFinder.FindByIdentity(context, samAccountName))
-                        ReadUserGroups(principal, groups, cancellationToken);
+                        ReadUserGroups(principal, groups);
                     
                     return new DirectoryServicesExternalSecurityGroupLocatorResult(groups);
                 }
