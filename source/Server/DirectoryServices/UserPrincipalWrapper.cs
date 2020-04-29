@@ -7,8 +7,8 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.Director
 {
     interface IUserPrincipalWrapper : IPrincipalWrapper, IDisposable
     {
-        IList<IPrincipalWrapper> GetAuthorizationGroups(CancellationToken cancellationToken);
-        IList<IPrincipalWrapper> GetGroups(CancellationToken cancellationToken);
+        IEnumerable<IPrincipalWrapper> GetAuthorizationGroups(CancellationToken cancellationToken);
+        IEnumerable<IPrincipalWrapper> GetGroups(CancellationToken cancellationToken);
     }
 
     class UserPrincipalWrapper : PrincipalWrapper, IUserPrincipalWrapper
@@ -26,15 +26,13 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.Director
             userPrincipal?.Dispose();
         }
 
-        public IList<IPrincipalWrapper> GetAuthorizationGroups(CancellationToken cancellationToken)
-        {
-            return GetList(userPrincipal.GetAuthorizationGroups(), cancellationToken);
-        }
+        public IEnumerable<IPrincipalWrapper> GetAuthorizationGroups(CancellationToken cancellationToken)
+            => GetList(userPrincipal.GetAuthorizationGroups(), cancellationToken);
 
-        public IList<IPrincipalWrapper> GetGroups(CancellationToken cancellationToken)
+        public IEnumerable<IPrincipalWrapper> GetGroups(CancellationToken cancellationToken)
             => GetList(userPrincipal.GetGroups(), cancellationToken);
 
-        static IList<IPrincipalWrapper> GetList(PrincipalSearchResult<Principal> principalResult,
+        static IEnumerable<IPrincipalWrapper> GetList(PrincipalSearchResult<Principal> principalResult,
             CancellationToken cancellationToken)
         {
             var results = new List<IPrincipalWrapper>();
