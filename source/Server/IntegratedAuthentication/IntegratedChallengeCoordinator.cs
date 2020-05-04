@@ -38,7 +38,9 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.Integrat
                 }
                 
                 // if we've seen this connection before and the user still isn't set then something has gone
-                // wrong with the challenge. Most likely due to cross domains now we're NETCore, https://github.com/OctopusDeploy/Issues/issues/6265
+                // wrong with the challenge. Most likely to us using HTTPS.sys https://docs.microsoft.com/en-us/aspnet/core/security/authentication/windowsauth?view=aspnetcore-3.1&tabs=visual-studio#httpsys
+                // User mode authentication isn't supported with Kerberos and HTTP.sys. The machine account must be used to decrypt the Kerberos token/ticket that's obtained from Active Directory
+                // SPN KB: https://support.microsoft.com/en-us/help/929650/how-to-use-spns-when-you-configure-web-applications-that-are-hosted-on
                 var stateRedirectAfterLoginTo = state.RedirectAfterLoginTo;
 
                 // this matches an error structure that the portal currently uses. It is not something the server
