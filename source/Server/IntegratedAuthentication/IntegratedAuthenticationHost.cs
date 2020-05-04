@@ -114,7 +114,7 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.Integrat
                 case System.Net.AuthenticationSchemes.Negotiate:
                     return AuthenticationSchemes.Negotiate;
                 case System.Net.AuthenticationSchemes.IntegratedWindowsAuthentication:
-                    return AuthenticationSchemes.Kerberos;
+                    return AuthenticationSchemes.Negotiate | AuthenticationSchemes.NTLM;
             }
             return AuthenticationSchemes.None;
         }
