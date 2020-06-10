@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Octopus.Server.Extensibility.Authentication.DirectoryServices.DirectoryServices;
@@ -10,6 +9,8 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.Web
 {
     class ListSecurityGroupsAction : IAsyncApiAction
     {
+        static readonly IRequiredParameter<string> PartialName = new RequiredQueryParameterProperty<string>("partialName", "Partial group name to lookup");
+
         readonly IDirectoryServicesExternalSecurityGroupLocator externalSecurityGroupLocator;
 
         public ListSecurityGroupsAction(
@@ -18,21 +19,15 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.Web
             this.externalSecurityGroupLocator = externalSecurityGroupLocator;
         }
 
-        public Task ExecuteAsync(OctoContext context)
+        public async Task<OctoResponse> ExecuteAsync(IOctoRequest request)
         {
-            var name = context.Request.Query["partialName"]?.FirstOrDefault();
-            if (string.IsNullOrWhiteSpace(name))
+            return request.GetQueryValue(PartialName, name =>
             {
-                context.Response.BadRequest("Please provide the name of a group to search by, or a team");
-                return Task.FromResult(0);
-            }
-
-            using (var cts = new CancellationTokenSource(TimeSpan.FromMinutes(1)))
-            {
-                context.Response.AsOctopusJson(SearchByName(name, cts.Token));
-            }
-
-            return Task.FromResult(0);
+                using (var cts = new CancellationTokenSource(TimeSpan.FromMinutes(1)))
+                {
+                    return new OctoDataResponse(SearchByName(name, cts.Token));
+                }
+            });
         }
 
         ExternalSecurityGroup[] SearchByName(string name, CancellationToken cancellationToken)
