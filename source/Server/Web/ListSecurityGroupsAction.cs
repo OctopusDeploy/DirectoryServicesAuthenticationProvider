@@ -10,6 +10,7 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.Web
     class ListSecurityGroupsAction : IAsyncApiAction
     {
         static readonly IRequiredParameter<string> PartialName = new RequiredQueryParameterProperty<string>("partialName", "Partial group name to lookup");
+        static readonly OctopusJsonRegistration<ExternalSecurityGroup[]> searchResults = new OctopusJsonRegistration<ExternalSecurityGroup[]>();
 
         readonly IDirectoryServicesExternalSecurityGroupLocator externalSecurityGroupLocator;
 
@@ -19,13 +20,13 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.Web
             this.externalSecurityGroupLocator = externalSecurityGroupLocator;
         }
 
-        public async Task<OctoResponse> ExecuteAsync(IOctoRequest request)
+        public Task<IOctoResponseProvider> ExecuteAsync(IOctoRequest request)
         {
-            return request.GetQueryValue(PartialName, name =>
+            return request.GetParameterValue(PartialName, name =>
             {
                 using (var cts = new CancellationTokenSource(TimeSpan.FromMinutes(1)))
                 {
-                    return new OctoDataResponse(SearchByName(name, cts.Token));
+                    return Task.FromResult(searchResults.Response(SearchByName(name, cts.Token)));
                 }
             });
         }
