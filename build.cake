@@ -21,7 +21,7 @@ var publishDir = "./publish";
 var localPackagesDir = "../LocalPackages";
 var artifactsDir = "./artifacts";
 var assetDir = "./BuildAssets";
-var netstd = "/bin/Release/netstandard2.0/";
+var netstd = "/bin/Release/netstandard2.1/";
 
 var gitVersionInfo = GitVersion(new GitVersionSettings {
     OutputType = GitVersionOutput.Json
