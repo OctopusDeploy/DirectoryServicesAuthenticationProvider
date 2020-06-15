@@ -10,7 +10,7 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.Web
     class UserLookupAction : IAsyncApiAction
     {
         static readonly IRequiredParameter<string> PartialName = new RequiredQueryParameterProperty<string>("partialName", "Partial username to lookup");
-        static readonly OctopusJsonRegistration<ExternalUserLookupResult> searchResults = new OctopusJsonRegistration<ExternalUserLookupResult>();
+        static readonly OctopusJsonRegistration<ExternalUserLookupResult> SearchResults = new OctopusJsonRegistration<ExternalUserLookupResult>();
 
         readonly ICanSearchActiveDirectoryUsers userSearch;
 
@@ -25,7 +25,7 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.Web
             {
                 using (var cts = new CancellationTokenSource(TimeSpan.FromMinutes(1)))
                 {
-                    return Task.FromResult(searchResults.Response(userSearch.Search(name, cts.Token)));
+                    return Task.FromResult(SearchResults.Response(userSearch.Search(name, cts.Token)));
                 }
             });
         }
