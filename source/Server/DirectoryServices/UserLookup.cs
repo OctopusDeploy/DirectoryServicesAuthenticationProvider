@@ -2,10 +2,10 @@
 using System.DirectoryServices.AccountManagement;
 using System.Linq;
 using System.Threading;
-using Octopus.Data.Resources.Users;
 using Octopus.Server.Extensibility.Authentication.DirectoryServices.Configuration;
 using Octopus.Server.Extensibility.Authentication.DirectoryServices.Identities;
 using Octopus.Server.Extensibility.Authentication.Extensions;
+using Octopus.Server.Extensibility.Results;
 
 namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.DirectoryServices
 {
@@ -28,27 +28,29 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.Director
             this.identityCreator = identityCreator;
         }
 
-        public ExternalUserLookupResult Search(string searchTerm, CancellationToken cancellationToken)
+        public string IdentityProviderName => DirectoryServicesAuthentication.ProviderName;
+
+        public IResultFromExtension<ExternalUserLookupResult> Search(string searchTerm, CancellationToken cancellationToken)
         {
             if (!configurationStore.GetIsEnabled())
-                return new ExternalUserLookupResult (DirectoryServicesAuthentication.ProviderName, Enumerable.Empty<IdentityResource>().ToArray());
+                return ResultFromExtension<ExternalUserLookupResult>.ExtensionDisabled();
 
-            objectNameNormalizer.NormalizeName(searchTerm, out var partialName, out var domain);
+            var domainUser = objectNameNormalizer.NormalizeName(searchTerm);
 
-            using (var context = contextProvider.GetContext(domain))
+            using (var context = contextProvider.GetContext(domainUser.Domain))
             {
-                if (cancellationToken.IsCancellationRequested) return null;
+                if (cancellationToken.IsCancellationRequested) return ResultFromExtension<ExternalUserLookupResult>.Failed("Cancellation requested.");
 
-                var identities = new List<Principal>(SearchBy(new UserPrincipal(context) { Name = "*" + partialName + "*" }));
-                identities.AddRange(SearchBy(new UserPrincipal(context) { UserPrincipalName = "*" + partialName + "*" }));
-                identities.AddRange(SearchBy(new UserPrincipal(context) { SamAccountName = "*" + partialName + "*" }));
+                var identities = new List<Principal>(SearchBy(new UserPrincipal(context) { Name = "*" + domainUser.NormalizedName + "*" }));
+                identities.AddRange(SearchBy(new UserPrincipal(context) { UserPrincipalName = "*" + domainUser.NormalizedName + "*" }));
+                identities.AddRange(SearchBy(new UserPrincipal(context) { SamAccountName = "*" + domainUser.NormalizedName + "*" }));
 
                 var identityResources = identities.Distinct(new PrincipalComparer())
-                    .Select(u => identityCreator.Create("", u.UserPrincipalName, ConvertSamAccountName(u, domain),
+                    .Select(u => identityCreator.Create("", u.UserPrincipalName, ConvertSamAccountName(u, domainUser.Domain),
                         u.DisplayName).ToResource())
                     .ToArray();
-                
-                return new ExternalUserLookupResult(DirectoryServicesAuthentication.ProviderName, identityResources);
+
+                return ResultFromExtension<ExternalUserLookupResult>.Success(new ExternalUserLookupResult(identityResources));
             }
         }
 
@@ -62,7 +64,7 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.Director
             return searcher.FindAll();
         }
 
-        static string ConvertSamAccountName(Principal u, string domain)
+        static string ConvertSamAccountName(Principal u, string? domain)
         {
             return !string.IsNullOrWhiteSpace(domain) ? $"{domain}\\{u.SamAccountName}" : u.SamAccountName;
         }

@@ -4,6 +4,6 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.Director
 {
     interface IDirectoryServicesContextProvider
     {
-        PrincipalContext GetContext(string domain);
+        PrincipalContext GetContext(string? domain);
     }
 }

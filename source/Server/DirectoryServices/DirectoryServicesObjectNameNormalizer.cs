@@ -13,21 +13,23 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.Director
             this.log = log;
         }
 
-        public void NormalizeName(string name, out string namePart, out string domainPart)
+        public DomainUser NormalizeName(string name)
         {
             if (name == null) throw new ArgumentNullException(nameof(name));
 
             if (name.StartsWith(NTAccountUsernamePrefix))
                 name = name.Remove(0, NTAccountUsernamePrefix.Length);
 
-            if (!TryParseDownLevelLogonName(name, out namePart, out domainPart))
+            var domainUser = TryParseDownLevelLogonName(name);
+            if (domainUser == null)
             {
-                namePart = name;
-                domainPart = null;
+                domainUser = new DomainUser(null, name);
             }
+
+            return domainUser;
         }
 
-        public string ValidatedUserPrincipalName(string userPrincipalName, string fallbackUsername, string fallbackDomain)
+        public string ValidatedUserPrincipalName(string? userPrincipalName, string? fallbackUsername, string? fallbackDomain)
         {
             var name = userPrincipalName;
             if (name == null)
@@ -46,19 +48,17 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.Director
         // contain precisely the component name and domain name values. Note, we don't split
         // UPNs this way because the suffix part of a UPN is not necessarily a domain, and in
         // the default LogonUser case should be passed whole to the function with a null domain.
-        static bool TryParseDownLevelLogonName(string dlln, out string username, out string domain)
+        static DomainUser? TryParseDownLevelLogonName(string dlln)
         {
             if (dlln == null) throw new ArgumentNullException(nameof(dlln));
-            username = null;
-            domain = null;
 
             var slash = dlln.IndexOf('\\');
             if (slash == -1 || slash == dlln.Length - 1 || slash == 0)
-                return false;
+                return null;
 
-            domain = dlln.Substring(0, slash).Trim();
-            username = dlln.Substring(slash + 1).Trim();
-            return !string.IsNullOrWhiteSpace(domain) && !string.IsNullOrWhiteSpace(username);
+            var domain = dlln.Substring(0, slash).Trim();
+            var username = dlln.Substring(slash + 1).Trim();
+            return !string.IsNullOrWhiteSpace(domain) && !string.IsNullOrWhiteSpace(username) ? new DomainUser(domain,  username) : null;
         }
     }
 }

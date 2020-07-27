@@ -13,7 +13,7 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.Director
             this.adConfiguration = adConfiguration;
         }
 
-        public PrincipalContext GetContext(string domain)
+        public PrincipalContext GetContext(string? domain)
         {
             var adContainer = adConfiguration.Value.GetActiveDirectoryContainer();
             adContainer = string.IsNullOrEmpty(adContainer) ? null : adContainer;

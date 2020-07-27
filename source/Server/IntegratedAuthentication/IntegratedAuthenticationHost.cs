@@ -40,7 +40,7 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.Integrat
         readonly IWebPortalConfigurationStore configuration;
         readonly IDirectoryServicesConfigurationStore configurationStore;
         readonly IIntegratedAuthenticationHandler handler;
-        IWebHost host;
+        IWebHost? host;
 
         public IntegratedAuthenticationHost(ILog log,
             IWebPortalConfigurationStore configuration,

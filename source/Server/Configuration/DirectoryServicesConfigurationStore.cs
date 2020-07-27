@@ -18,12 +18,12 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.Configur
         public string ChallengePath => DirectoryServicesConstants.ChallengePath;
         public AuthenticationSchemes AuthenticationScheme => GetIsEnabled() ? GetAuthenticationScheme() : AuthenticationSchemes.Anonymous;
 
-        public string GetActiveDirectoryContainer()
+        public string? GetActiveDirectoryContainer()
         {
             return GetProperty(doc => doc.ActiveDirectoryContainer);
         }
 
-        public void SetActiveDirectoryContainer(string activeDirectoryContainer)
+        public void SetActiveDirectoryContainer(string? activeDirectoryContainer)
         {
             SetProperty(doc => doc.ActiveDirectoryContainer = activeDirectoryContainer);
         }

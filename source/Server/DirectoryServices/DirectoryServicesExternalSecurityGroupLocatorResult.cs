@@ -14,7 +14,7 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.Director
             GroupsIds = groupsIds;
         }
 
-        public bool WasAbleToRetrieveGroups { get; set; }
-        public IList<string> GroupsIds { get; set; }
+        public bool WasAbleToRetrieveGroups { get; }
+        public IList<string>? GroupsIds { get; }
     }
 }

@@ -24,7 +24,7 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.Configur
             var isEnabled = ConfigurationDocumentStore.GetIsEnabled();
 
             yield return new ConfigurationValue<bool>("Octopus.WebPortal.ActiveDirectoryIsEnabled", isEnabled, isEnabled, "Is Enabled");
-            yield return new ConfigurationValue<string>("Octopus.WebPortal.ActiveDirectoryContainer", ConfigurationDocumentStore.GetActiveDirectoryContainer(), isEnabled && !string.IsNullOrWhiteSpace(ConfigurationDocumentStore.GetActiveDirectoryContainer()), "Active Directory Container");
+            yield return new ConfigurationValue<string?>("Octopus.WebPortal.ActiveDirectoryContainer", ConfigurationDocumentStore.GetActiveDirectoryContainer(), isEnabled && !string.IsNullOrWhiteSpace(ConfigurationDocumentStore.GetActiveDirectoryContainer()), "Active Directory Container");
             yield return new ConfigurationValue<string>("Octopus.WebPortal.AuthenticationScheme", ConfigurationDocumentStore.GetAuthenticationScheme().ToString(), isEnabled, "Authentication Scheme");
             yield return new ConfigurationValue<bool>("Octopus.WebPortal.AllowFormsAuthenticationForDomainUsers", ConfigurationDocumentStore.GetAllowFormsAuthenticationForDomainUsers(), isEnabled, "Allow forms authentication");
             yield return new ConfigurationValue<bool>("Octopus.WebPortal.ExternalSecurityGroupsDisabled", ConfigurationDocumentStore.GetAreSecurityGroupsEnabled(), isEnabled, "Security groups enabled");

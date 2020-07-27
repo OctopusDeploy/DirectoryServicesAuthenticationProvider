@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using NSubstitute;
 using NUnit.Framework;
+using Octopus.Data;
 using Octopus.Data.Model;
 using Octopus.Data.Model.User;
 using Octopus.Data.Storage.User;
@@ -11,6 +12,7 @@ using Octopus.Server.Extensibility.Authentication.DirectoryServices.Configuratio
 using Octopus.Server.Extensibility.Authentication.DirectoryServices.DirectoryServices;
 using Octopus.Server.Extensibility.Authentication.DirectoryServices.Identities;
 using Octopus.Server.Extensibility.Authentication.HostServices;
+using Octopus.Server.Extensibility.Results;
 using Shouldly;
 
 namespace DirectoryServices.Tests
@@ -35,7 +37,7 @@ namespace DirectoryServices.Tests
             updateableUserStore = Substitute.For<IUpdateableUserStore>();
 
             directoryServicesService = Substitute.For<IDirectoryServicesService>();
-            
+
             var log = Substitute.For<ILog>();
 
             identityCreator = new IdentityCreator();
@@ -54,8 +56,8 @@ namespace DirectoryServices.Tests
 
             var result = validator.ValidateCredentials("invalidUser", "testPassword", CancellationToken.None);
 
-            result.Succeeded.ShouldBeFalse();
-            result.FailureReason.ShouldBe("User not found");
+            result.ShouldBeAssignableTo<FailureResult>();
+            ((FailureResult)result).ErrorString.ShouldBe("User not found");
             updateableUserStore.DidNotReceive().Create(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(), CancellationToken.None);
         }
 
@@ -71,7 +73,7 @@ namespace DirectoryServices.Tests
 
             var result = validator.ValidateCredentials("existingUser", "testPassword", CancellationToken.None);
 
-            result.Succeeded.ShouldBeTrue();
+            result.ShouldBeOfType<ResultFromExtension<IUser>>();
             updateableUserStore.DidNotReceive().UpdateIdentity(Arg.Any<string>(), Arg.Any<Identity>(), CancellationToken.None);
         }
 
@@ -89,7 +91,7 @@ namespace DirectoryServices.Tests
 
             var result = validator.ValidateCredentials("existingUser1@test.com", "testPassword", CancellationToken.None);
 
-            result.Succeeded.ShouldBeTrue();
+            result.ShouldBeOfType<ResultFromExtension<IUser>>();
             updateableUserStore.Received(1).UpdateIdentity(Arg.Any<string>(), Arg.Any<Identity>(), CancellationToken.None);
         }
 
@@ -103,11 +105,11 @@ namespace DirectoryServices.Tests
 
             var user = new User("Users-100", "newUser", identityCreator.Create(string.Empty, "newUser@test.com", "TestDomain\\newUser", string.Empty));
             updateableUserStore.Create("newUser@test.com", Arg.Any<string>(), Arg.Any<string>(), CancellationToken.None, Arg.Any<ProviderUserGroups>(), Arg.Any<IEnumerable<Identity>>())
-                .Returns(new UserCreateResult(user));
+                .Returns(ResultFromExtension<IUser>.Success(user));
 
             var result = validator.ValidateCredentials("newUser", "testPassword", CancellationToken.None);
 
-            result.Succeeded.ShouldBeTrue();
+            result.ShouldBeOfType<ResultFromExtension<IUser>>();
             updateableUserStore.Received(1).Create("newUser@test.com", Arg.Any<string>(), Arg.Any<string>(), CancellationToken.None, Arg.Any<ProviderUserGroups>(), Arg.Any<IEnumerable<Identity>>());
         }
 
@@ -122,13 +124,13 @@ namespace DirectoryServices.Tests
             updateableUserStore.GetByIdentity(Arg.Any<Identity>()).Returns(new[] { user });
 
             updateableUserStore.Create("newUser@test.com", Arg.Any<string>(), "tester@test.com", CancellationToken.None, Arg.Any<ProviderUserGroups>(), Arg.Any<IEnumerable<Identity>>())
-                .Returns(new UserCreateResult(user));
+                .Returns(ResultFromExtension<IUser>.Success(user));
 
             directoryServicesService.FindByIdentity("TestDomain\\existingUser").Returns(new UserValidationResult("existingUser@test.com", "existingUser", "TestDomain", string.Empty, "tester@test.com"));
 
             var result = validator.ValidateCredentials("newUser", "testPassword", CancellationToken.None);
 
-            result.Succeeded.ShouldBeTrue();
+            result.ShouldBeOfType<ResultFromExtension<IUser>>();
             updateableUserStore.Received(1).Create("newUser@test.com", Arg.Any<string>(), "tester@test.com", CancellationToken.None, Arg.Any<ProviderUserGroups>(), Arg.Any<IEnumerable<Identity>>());
         }
 
@@ -145,7 +147,7 @@ namespace DirectoryServices.Tests
 
             var result = validator.ValidateCredentials("existingUser2", "testPassword", CancellationToken.None);
 
-            result.Succeeded.ShouldBeTrue();
+            result.ShouldBeOfType<ResultFromExtension<IUser>>();
             updateableUserStore.DidNotReceive().Create(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(), CancellationToken.None);
         }
 
@@ -161,8 +163,8 @@ namespace DirectoryServices.Tests
 
             var result = validator.ValidateCredentials("newUser", "testPassword", CancellationToken.None);
 
-            result.Succeeded.ShouldBeFalse();
-            result.FailureReason.ShouldBe("User could not be located and auto user creation is not enabled.");
+            result.ShouldBeAssignableTo<FailureResult>();
+            ((FailureResult)result).ErrorString.ShouldBe("User could not be located and auto user creation is not enabled.");
         }
 
         [Test]
@@ -175,11 +177,11 @@ namespace DirectoryServices.Tests
 
             var user = new User("Users-100", "newUser", identityCreator.Create(string.Empty, "newUser@domain2.com", "Domain2\\newUser", string.Empty));
             updateableUserStore.Create("newUser@domain2.com", Arg.Any<string>(), Arg.Any<string>(), CancellationToken.None, Arg.Any<ProviderUserGroups>(), Arg.Any<IEnumerable<Identity>>())
-                .Returns(new UserCreateResult(user));
+                .Returns(ResultFromExtension<IUser>.Success(user));
 
             var result = validator.ValidateCredentials("Domain2\\newUser", "testPassword", CancellationToken.None);
 
-            result.Succeeded.ShouldBeTrue();
+            result.ShouldBeOfType<ResultFromExtension<IUser>>();
             updateableUserStore.Received(1).Create("newUser@domain2.com", Arg.Any<string>(), Arg.Any<string>(), CancellationToken.None, Arg.Any<ProviderUserGroups>(), Arg.Any<IEnumerable<Identity>>());
         }
 
@@ -195,7 +197,7 @@ namespace DirectoryServices.Tests
 
             var result = validator.ValidateCredentials("existingUser", "testPassword", CancellationToken.None);
 
-            result.Succeeded.ShouldBeTrue();
+            result.ShouldBeOfType<ResultFromExtension<IUser>>();
             updateableUserStore.Received(1).UpdateIdentity("Users-100", Arg.Any<Identity>(), CancellationToken.None);
             updateableUserStore.DidNotReceive().Create(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(), CancellationToken.None);
         }
@@ -212,7 +214,7 @@ namespace DirectoryServices.Tests
 
             var result = validator.ValidateCredentials("existingUserWithNewSam", "testPassword", CancellationToken.None);
 
-            result.Succeeded.ShouldBeTrue();
+            result.ShouldBeOfType<ResultFromExtension<IUser>>();
             updateableUserStore.Received(1).UpdateIdentity("Users-100", Arg.Any<Identity>(), CancellationToken.None);
             updateableUserStore.DidNotReceive().Create(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(), CancellationToken.None);
         }
@@ -231,7 +233,7 @@ namespace DirectoryServices.Tests
 
             var result = validator.ValidateCredentials("existingUserWithNewSam", "testPassword", CancellationToken.None);
 
-            result.Succeeded.ShouldBeTrue();
+            result.ShouldBeOfType<ResultFromExtension<IUser>>();
             updateableUserStore.Received(1).UpdateIdentity("Users-100", Arg.Any<Identity>(), CancellationToken.None);
             updateableUserStore.DidNotReceive().Create(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(), CancellationToken.None);
         }

@@ -5,8 +5,8 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.Configur
 {
     interface IDirectoryServicesConfigurationStore : IExtensionConfigurationStore<DirectoryServicesConfiguration>
     {
-        string GetActiveDirectoryContainer();
-        void SetActiveDirectoryContainer(string activeDirectoryContainer);
+        string? GetActiveDirectoryContainer();
+        void SetActiveDirectoryContainer(string? activeDirectoryContainer);
 
         AuthenticationSchemes GetAuthenticationScheme();
         void SetAuthenticationScheme(AuthenticationSchemes scheme);

@@ -7,6 +7,7 @@ using Octopus.Diagnostics;
 using Octopus.Server.Extensibility.Authentication.DirectoryServices.Configuration;
 using Octopus.Server.Extensibility.Authentication.Extensions;
 using Octopus.Server.Extensibility.Authentication.HostServices;
+using Octopus.Server.Extensibility.Results;
 
 namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.DirectoryServices
 {
@@ -32,30 +33,30 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.Director
             this.userPrincipalFinder = userPrincipalFinder;
         }
 
-        public ExternalSecurityGroupResult Search(string name, CancellationToken cancellationToken)
+        public string IdentityProviderName => DirectoryServicesAuthentication.ProviderName;
+
+        public IResultFromExtension<ExternalSecurityGroupResult> Search(string name, CancellationToken cancellationToken)
         {
             if (!configurationStore.GetIsEnabled() || !configurationStore.GetAreSecurityGroupsEnabled())
-                return null;
+                return ResultFromExtension<ExternalSecurityGroupResult>.ExtensionDisabled();
 
             var groups = FindGroups(name, cancellationToken);
-            var result = new ExternalSecurityGroupResult(DirectoryServicesAuthentication.ProviderName, groups);
+            var result = new ExternalSecurityGroupResult(groups);
 
-            return result;
+            return ResultFromExtension<ExternalSecurityGroupResult>.Success(result);
         }
 
-        public ExternalSecurityGroup[] FindGroups(string name, CancellationToken cancellationToken)
+        ExternalSecurityGroup[] FindGroups(string name, CancellationToken cancellationToken)
         {
             if (!configurationStore.GetAreSecurityGroupsEnabled())
-                return new ExternalSecurityGroup[0];
+                return Array.Empty<ExternalSecurityGroup>();
 
             var results = new List<ExternalSecurityGroup>();
-            string domain;
-            string partialGroupName;
-            objectNameNormalizer.NormalizeName(name, out partialGroupName, out domain);
-            using (var context = contextProvider.GetContext(domain))
+            var domainUser = objectNameNormalizer.NormalizeName(name);
+            using (var context = contextProvider.GetContext(domainUser.Domain))
             {
                 var searcher = new PrincipalSearcher();
-                searcher.QueryFilter = new GroupPrincipal(context) { Name = "*" + partialGroupName + "*" };
+                searcher.QueryFilter = new GroupPrincipal(context) { Name = "*" + domainUser.NormalizedName + "*" };
 
                 var iterGroup = searcher.FindAll().GetEnumerator();
                 using (iterGroup)
@@ -74,7 +75,7 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.Director
                         {
                         }
 
-                        if (cancellationToken.IsCancellationRequested) return null;
+                        if (cancellationToken.IsCancellationRequested) return Array.Empty<ExternalSecurityGroup>();
                     }
                 }
             }
@@ -95,17 +96,17 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.Director
             {
                 log.Verbose($"Finding external security groups for '{samAccountName}'...");
 
-                objectNameNormalizer.NormalizeName(samAccountName, out samAccountName, out var domain);
+                var domainUser = objectNameNormalizer.NormalizeName(samAccountName);
 
-                using (var context = contextProvider.GetContext(domain))
+                using (var context = contextProvider.GetContext(domainUser.Domain))
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    using (var principal = userPrincipalFinder.FindByIdentity(context, samAccountName))
+                    using (var principal = userPrincipalFinder.FindByIdentity(context, domainUser.NormalizedName))
                     {
                         if (principal == null)
                         {
-                            var searchedContext = domain ?? context.Name ?? context.ConnectedServer;
+                            var searchedContext = domainUser.Domain ?? context.Name ?? context.ConnectedServer;
                             log.Trace(
                                 $"While loading security groups, a principal identifiable by '{samAccountName}' was not found in '{searchedContext}'");
                             return new DirectoryServicesExternalSecurityGroupLocatorResult();
@@ -129,7 +130,7 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.Director
                     // Reads just the groups they are a member of - more reliable but not ideal
                     using (var principal = userPrincipalFinder.FindByIdentity(context, samAccountName))
                         ReadUserGroups(principal, groups, cancellationToken);
-                    
+
                     return new DirectoryServicesExternalSecurityGroupLocatorResult(groups);
                 }
             }

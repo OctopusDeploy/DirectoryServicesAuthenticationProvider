@@ -4,7 +4,7 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.Director
 {
     class UserValidationResult
     {
-        public UserValidationResult(UserPrincipal userPrincipal, string domain)
+        public UserValidationResult(UserPrincipal userPrincipal, string? domain)
             :this(userPrincipal.UserPrincipalName,
                 $"{domain}\\{userPrincipal.SamAccountName}",
                 domain, 
@@ -13,7 +13,7 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.Director
         {
         }
 
-        public UserValidationResult(string userPrincipalName, string samAccountName, string domain, string displayName, string emailAddress)
+        public UserValidationResult(string userPrincipalName, string samAccountName, string? domain, string displayName, string emailAddress)
         {
             UserPrincipalName = userPrincipalName;
             SamAccountName = samAccountName.Contains("\\") ? samAccountName : $"{domain}\\{samAccountName}";
@@ -29,14 +29,14 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.Director
             ValidationMessage = validationMessage;
         }
 
-        public string UserPrincipalName { get; }
-        public string SamAccountName { get; }
-        public string Domain { get; }
+        public string? UserPrincipalName { get; }
+        public string? SamAccountName { get; }
+        public string? Domain { get; }
 
-        public string DisplayName { get; }
-        public string EmailAddress { get; }
+        public string? DisplayName { get; }
+        public string? EmailAddress { get; }
 
         public bool Success { get; }
-        public string ValidationMessage { get; }
+        public string? ValidationMessage { get; }
     }
 }

@@ -14,12 +14,11 @@ namespace DirectoryServices.Tests
         [TestCase("EXAMPLE\\joe", "joe", "EXAMPLE")]
         public void CredentialsAreNormalized(string rawUsername, string usedUsername, string usedDomain)
         {
-            string usernamePart, domainPart;
             var log = Substitute.For<ILog>();
             var credentialNormalizer = new DirectoryServicesObjectNameNormalizer(log);
-            credentialNormalizer.NormalizeName(rawUsername, out usernamePart, out domainPart);
-            Assert.AreEqual(usedUsername, usernamePart);
-            Assert.AreEqual(usedDomain, domainPart);
+            var domainUser = credentialNormalizer.NormalizeName(rawUsername);
+            Assert.AreEqual(usedUsername, domainUser.NormalizedName);
+            Assert.AreEqual(usedDomain, domainUser.Domain);
         }
     }
 }

@@ -5,6 +5,6 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.Integrat
 {
     interface IIntegratedChallengeCoordinator
     {
-        IntegratedChallengeTrackerStatus SetupResponseIfChallengeHasNotSucceededYet(HttpContext context, LoginState state);
+        IntegratedChallengeTrackerStatus SetupResponseIfChallengeHasNotSucceededYet(HttpContext context, LoginState? state);
     }
 }

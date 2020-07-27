@@ -2,8 +2,8 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.Director
 {
     interface IDirectoryServicesObjectNameNormalizer
     {
-        void NormalizeName(string name, out string namePart, out string domainPart);
+        DomainUser NormalizeName(string name);
 
-        string ValidatedUserPrincipalName(string userPrincipalName, string fallbackUsername, string fallbackDomain);
+        string ValidatedUserPrincipalName(string? userPrincipalName, string? fallbackUsername, string? fallbackDomain);
     }
 }

@@ -9,21 +9,23 @@
     <Authors>Octopus Deploy</Authors>
     <PackageId>Octopus.Server.Extensibility.Authentication.DirectoryServices</PackageId>
     <PackageIconUrl>http://i.octopusdeploy.com/resources/Avatar3_360.png</PackageIconUrl>
-    <PackageLicenseUrl>https://github.com/OctopusDeploy/DirectoryServicesAuthenticationProvider/blob/master/LICENSE.txt</PackageLicenseUrl>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/OctopusDeploy/DirectoryServicesAuthenticationProvider</PackageProjectUrl>
+    <Nullable>enable</Nullable>
+    <WarningsAsErrors>true</WarningsAsErrors>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Authentication" Version="2.1.2" />
     <PackageReference Include="Microsoft.AspNetCore.Hosting" Version="2.1.1" />
     <PackageReference Include="Microsoft.AspNetCore.Server.HttpSys" Version="2.1.1" />
+    <PackageReference Include="Octopus.Configuration" Version="2.1.0" />
+    <PackageReference Include="Octopus.Data" Version="5.1.3" />
+    <PackageReference Include="Octopus.Diagnostics" Version="1.3.5" />
+    <PackageReference Include="Octopus.Server.Extensibility" Version="10.1.0-enh-nancyparams0038" />
+    <PackageReference Include="Octopus.Server.Extensibility.Authentication" Version="9.1.1" />
     <PackageReference Include="Octopus.Time" Version="1.1.6" />
     <PackageReference Include="System.DirectoryServices" Version="4.5.0" />
     <PackageReference Include="System.DirectoryServices.AccountManagement" Version="4.5.0" />
-    <PackageReference Include="Octopus.Configuration" Version="2.0.1" />
-    <PackageReference Include="Octopus.Data" Version="5.0.3" />
-    <PackageReference Include="Octopus.Diagnostics" Version="1.3.0" />
-    <PackageReference Include="Octopus.Server.Extensibility" Version="9.0.10-enh-nancyparams0041" />
-    <PackageReference Include="Octopus.Server.Extensibility.Authentication" Version="9.1.1" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Web\Static\images\directory_services_signin_buttons\microsoft-logo.svg" />

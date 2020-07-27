@@ -4,12 +4,14 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
+using Octopus.Data;
+using Octopus.Data.Model.User;
 using Octopus.Data.Storage.User;
 using Octopus.Diagnostics;
-using Octopus.Server.Extensibility.Authentication.DirectoryServices.Configuration;
 using Octopus.Server.Extensibility.Authentication.DirectoryServices.DirectoryServices;
 using Octopus.Server.Extensibility.Authentication.HostServices;
 using Octopus.Server.Extensibility.Authentication.Resources;
+using Octopus.Server.Extensibility.Results;
 
 namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.IntegratedAuthentication
 {
@@ -24,7 +26,7 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.Integrat
 
         public IntegratedAuthenticationHandler(ILog log,
             IAuthCookieCreator tokenIssuer,
-            IAuthenticationConfigurationStore authenticationConfigurationStore, 
+            IAuthenticationConfigurationStore authenticationConfigurationStore,
             DirectoryServicesUserCreationFromPrincipal supportsAutoUserCreationFromPrincipals,
             IUserStore userStore,
             IIntegratedChallengeCoordinator integratedChallengeCoordinator)
@@ -46,15 +48,19 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.Integrat
                 // the coordinator will configure the Response object in the correct way for incomplete challenges
                 return Task.CompletedTask;
             }
-            
+
             // Challenge has succeeded!!
 
             var result = TryAuthenticateRequest(context);
-            
-            var principal = result.User;
+            if (result == null)
+                return Task.CompletedTask;
+
+            var principalIdentificationToken = result.Value?.IdentificationToken;
+            if (principalIdentificationToken == null)
+                throw new InvalidOperationException("The user principal's identification token was ");
 
             // Build the auth cookies to send back with the response
-            var authCookies = tokenIssuer.CreateAuthCookies(principal.IdentificationToken, SessionExpiry.TwentyDays, context.Request.IsHttps, state?.UsingSecureConnection);
+            var authCookies = tokenIssuer.CreateAuthCookies(principalIdentificationToken.Value, SessionExpiry.TwentyDays, context.Request.IsHttps, state?.UsingSecureConnection);
 
             // If the caller has provided a redirect after successful login, we need to check it is a local address - preventing Open Redirection attacks
             if (!string.IsNullOrWhiteSpace(state?.RedirectAfterLoginTo))
@@ -84,17 +90,17 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.Integrat
             {
                 context.Response.Cookies.Append(cookie.Name, cookie.Value);
             }
-            
+
             return Task.CompletedTask;
         }
 
-        LoginState GetLoginState(HttpContext context)
+        LoginState? GetLoginState(HttpContext context)
         {
             // Decode the state object sent from the client (if there was one) so we can use those hints to build the most appropriate response
             // If the state can't be interpreted, we will fall back to a safe-by-default behaviour, however:
             //   1. Deep-links will not work because we don't know where the anonymous request originally wanted to go
             //   2. Cookies may not have the Secure flag set properly when SSL Offloading is in play
-            LoginState state = null;
+            LoginState? state = null;
             if (context.Request.Query.TryGetValue("state", out var stateString))
             {
                 try
@@ -110,15 +116,16 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.Integrat
             return state;
         }
 
-        OctopusAuthenticationResult TryAuthenticateRequest(HttpContext context)
+        /// <returns>Null if the user is currently unknown.</returns>
+        Result<IUser>? TryAuthenticateRequest(HttpContext context)
         {
             if (context == null) throw new ArgumentNullException(nameof(context));
             if (context.Request == null) throw new ArgumentNullException($"{nameof(context)}.{nameof(context.Request)}");
-            
+
             // If there is no "RequestPrincipal" in the Context.Items it's not our job to authenticate this request
             var principal = context.User;
             if (string.IsNullOrWhiteSpace(principal.Identity.Name))
-                return OctopusAuthenticationResult.Anonymous;
+                return null;
 
             using (var cts = CancellationTokenSource.CreateLinkedTokenSource(context.RequestAborted, new CancellationTokenSource(TimeSpan.FromMinutes(1)).Token))
             {
@@ -126,16 +133,13 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.Integrat
                 var userResult = supportsAutoUserCreationFromPrincipals.GetOrCreateUser(principal, cts.Token);
 
                 // If we couldn't create the user account we also can't authenticate this request
-                if (userResult == null || !userResult.Succeeded) return OctopusAuthenticationResult.Anonymous;
+                if (userResult is FailureResult) return null;
 
                 // Otherwise we should be good to go!
-                var user = userStore.GetByIdentificationToken(userResult.User.IdentificationToken);
+                var user = userStore.GetByIdentificationToken(((ResultFromExtension<IUser>)userResult).Value.IdentificationToken);
 
-                return user == null
-                    ? OctopusAuthenticationResult.Anonymous
-                    : OctopusAuthenticationResult.Authenticated(user);
+                return Result<IUser>.Success(user);
             }
         }
-
     }
 }

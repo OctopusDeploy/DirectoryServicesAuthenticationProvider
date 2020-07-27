@@ -27,28 +27,28 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.Director
             this.identityCreator = identityCreator;
         }
 
-        public Identity Match(string name, CancellationToken cancellationToken)
+        public string IdentityProviderName => DirectoryServicesAuthentication.ProviderName;
+
+        public Identity? Match(string name, CancellationToken cancellationToken)
         {
             if (!configurationStore.GetIsEnabled())
                 return null;
 
-            string domain;
-            string normalisedName;
-            objectNameNormalizer.NormalizeName(name, out normalisedName, out domain);
+            var domainUser = objectNameNormalizer.NormalizeName(name);
 
-            using (var context = contextProvider.GetContext(domain))
+            using (var context = contextProvider.GetContext(domainUser.Domain))
             {
                 if (cancellationToken.IsCancellationRequested) return null;
 
                 var userPrincipal = new UserPrincipal(context);
 
-                if (normalisedName.Contains("@"))
+                if (domainUser.NormalizedName.Contains("@"))
                 {
-                    userPrincipal.UserPrincipalName = normalisedName;
+                    userPrincipal.UserPrincipalName = domainUser.NormalizedName;
                 }
                 else
                 {
-                    userPrincipal.SamAccountName = normalisedName;
+                    userPrincipal.SamAccountName = domainUser.NormalizedName;
                 }
 
                 var searcher = new PrincipalSearcher
@@ -61,12 +61,12 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.Director
                     return null;
 
                 return users
-                    .Select(u => identityCreator.Create("", u.UserPrincipalName, ConvertSamAccountName(u, domain), u.DisplayName))
+                    .Select(u => identityCreator.Create("", u.UserPrincipalName, ConvertSamAccountName(u, domainUser.Domain), u.DisplayName))
                     .First();
             }
         }
 
-        static string ConvertSamAccountName(Principal u, string domain)
+        static string ConvertSamAccountName(Principal u, string? domain)
         {
             return !string.IsNullOrWhiteSpace(domain) ? $"{domain}\\{u.SamAccountName}" : u.SamAccountName;
         }

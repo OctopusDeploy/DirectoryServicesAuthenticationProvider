@@ -17,8 +17,6 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices
         IContributesCSS,
         IContributesJavascript
     {
-        public const string ProviderName = "Active Directory";
-
         readonly IDirectoryServicesConfigurationStore configurationStore;
 
         public DirectoryServicesAuthenticationProvider(IDirectoryServicesConfigurationStore configurationStore)
@@ -46,7 +44,7 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices
             return authenticationProviderElement;
         }
 
-        public AuthenticationProviderThatSupportsGroups GetGroupLookupElement()
+        public AuthenticationProviderThatSupportsGroups? GetGroupLookupElement()
         {
             if (!configurationStore.GetAreSecurityGroupsEnabled())
                 return null;
@@ -82,7 +80,7 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices
         {
             return new IdentityMetadataResource
             {
-                IdentityProviderName = ProviderName,
+                IdentityProviderName = IdentityProviderName,
                 ClaimDescriptors = new []
                 {
                     new ClaimDescriptor { Type = IdentityCreator.UpnClaimType, Label = "User principal name", IsIdentifyingClaim = true, Description = "UPN identifier."}, 

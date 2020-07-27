@@ -23,7 +23,7 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.Integrat
             this.clock = clock;
         }
         
-        public IntegratedChallengeTrackerStatus SetupResponseIfChallengeHasNotSucceededYet(HttpContext context, LoginState state)
+        public IntegratedChallengeTrackerStatus SetupResponseIfChallengeHasNotSucceededYet(HttpContext context, LoginState? state)
         {
             // Based on https://github.com/dotnet/runtime/blob/cf63e732fc6fb57c0ea97c1b4ca965acce46343a/src/libraries/System.Net.Security/src/System/Net/Security/NegotiateStreamPal.Windows.cs#L52
             // we're being a bit cautious about using IsAuthenticated
@@ -41,7 +41,7 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.Integrat
                 // wrong with the challenge. Most likely to us using HTTPS.sys https://docs.microsoft.com/en-us/aspnet/core/security/authentication/windowsauth?view=aspnetcore-3.1&tabs=visual-studio#httpsys
                 // User mode authentication isn't supported with Kerberos and HTTP.sys. The machine account must be used to decrypt the Kerberos token/ticket that's obtained from Active Directory
                 // SPN KB: https://support.microsoft.com/en-us/help/929650/how-to-use-spns-when-you-configure-web-applications-that-are-hosted-on
-                var stateRedirectAfterLoginTo = state.RedirectAfterLoginTo;
+                var stateRedirectAfterLoginTo = state?.RedirectAfterLoginTo;
 
                 // this matches an error structure that the portal currently uses. It is not something the server
                 // currently knows directly about. We may make it a first-class error object at some point to help consistency.
@@ -61,7 +61,7 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.Integrat
                     new CookieOptions
                     {
                         MaxAge = TimeSpan.FromSeconds(15),
-                        Secure = state.UsingSecureConnection
+                        Secure = state?.UsingSecureConnection ?? false
                     });
                 
                 // we pass back to the original link here (e.g. the deep link that originally triggered the sign in)

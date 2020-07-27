@@ -21,7 +21,7 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.Configur
         [DisplayName("Active Directory Container")]
         [Description(ActiveDirectoryContainerDescription)]
         [Writeable]
-        public string ActiveDirectoryContainer { get; set; }
+        public string? ActiveDirectoryContainer { get; set; }
 
         [DisplayName("Authentication Scheme")]
         [Description(AuthenticationSchemeDescription)]

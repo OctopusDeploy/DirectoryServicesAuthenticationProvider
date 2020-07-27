@@ -15,7 +15,7 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.Configur
         /// <summary>
         /// Gets or sets the active directory container, if not specified default container is used
         /// </summary>
-        public string ActiveDirectoryContainer { get; set; }
+        public string? ActiveDirectoryContainer { get; set; }
 
         /// <summary>
         /// Gets or sets the authentication scheme to use when authentication Domain users.

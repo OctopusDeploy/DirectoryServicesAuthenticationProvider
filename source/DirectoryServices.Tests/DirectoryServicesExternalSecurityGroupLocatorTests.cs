@@ -29,11 +29,15 @@ namespace DirectoryServices.Tests
             var contextProvider = Substitute.For<IDirectoryServicesContextProvider>();
 
             userPrincipalFinder = Substitute.For<IUserPrincipalFinder>();
+
+            var directoryServicesObjectNameNormalizer = Substitute.For<IDirectoryServicesObjectNameNormalizer>();
+            directoryServicesObjectNameNormalizer.NormalizeName(Arg.Any<string>())
+                .Returns(x => new DomainUser(null, ((string)x.Args()[0])));
             
             locator = new DirectoryServicesExternalSecurityGroupLocator(
                 log,
                 contextProvider,
-                Substitute.For<IDirectoryServicesObjectNameNormalizer>(),
+                directoryServicesObjectNameNormalizer,
                 configurationStore,
                 userPrincipalFinder
             );

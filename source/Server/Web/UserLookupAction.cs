@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Octopus.Data;
 using Octopus.Server.Extensibility.Authentication.DirectoryServices.DirectoryServices;
 using Octopus.Server.Extensibility.Authentication.Extensions;
 using Octopus.Server.Extensibility.Extensions.Infrastructure.Web.Api;
 
 namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.Web
 {
-    class UserLookupAction : IAsyncApiAction
+    internal class UserLookupAction : IAsyncApiAction
     {
         static readonly IRequiredParameter<string> PartialName = new RequiredQueryParameterProperty<string>("partialName", "Partial username to lookup");
         static readonly OctopusJsonRegistration<ExternalUserLookupResult> SearchResults = new OctopusJsonRegistration<ExternalUserLookupResult>();
@@ -27,7 +28,11 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.Web
             {
                 using (var cts = new CancellationTokenSource(TimeSpan.FromMinutes(1)))
                 {
-                    return Task.FromResult(SearchResults.Response(userSearch.Search(name, cts.Token)));
+                    var externalUserLookupResult = userSearch.Search(name, cts.Token);
+                    if (externalUserLookupResult is ISuccessResult<ExternalUserLookupResult> successResult)
+                        context.Response.AsOctopusJson(successResult.Value);
+                    else
+                        context.Response.BadRequest($"The {DirectoryServicesAuthentication.ProviderName} is currently disabled");
                 }
             });
         }
