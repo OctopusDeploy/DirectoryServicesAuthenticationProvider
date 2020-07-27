@@ -26,8 +26,7 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.Web
         public Task<IOctoResponseProvider> ExecuteAsync(IOctoRequest request)
         {
             return request
-                .WithParameter(PartialName)
-                .HandleAsync(name =>
+                .HandleAsync(PartialName, name =>
             {
                 using (var cts = new CancellationTokenSource(TimeSpan.FromMinutes(1)))
                 {
