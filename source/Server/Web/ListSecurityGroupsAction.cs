@@ -12,6 +12,7 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.Web
     class ListSecurityGroupsAction : IAsyncApiAction
     {
         static readonly IRequiredParameter<string> PartialName = new RequiredQueryParameterProperty<string>("partialName", "Partial group name to lookup");
+        static readonly BadRequestRegistration Disabled = new BadRequestRegistration($"The {DirectoryServicesAuthentication.ProviderName} is currently disabled");
         static readonly OctopusJsonRegistration<ExternalSecurityGroup[]> SearchResults = new OctopusJsonRegistration<ExternalSecurityGroup[]>();
 
         readonly IDirectoryServicesExternalSecurityGroupLocator externalSecurityGroupLocator;
@@ -32,16 +33,10 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.Web
                 {
                     var result = externalSecurityGroupLocator.Search(name, cts.Token);
                     if (result is ISuccessResult<ExternalSecurityGroupResult> successResult)
-                        context.Response.AsOctopusJson(successResult.Value.Groups);
-                    else
-                        context.Response.BadRequest($"The {DirectoryServicesAuthentication.ProviderName} is currently disabled");
+                        return Task.FromResult(SearchResults.Response(successResult.Value.Groups));
+                    return Task.FromResult(Disabled.Response());
                 }
             });
-        }
-
-        ExternalSecurityGroup[] SearchByName(string name, CancellationToken cancellationToken)
-        {
-            return externalSecurityGroupLocator.Search(name, cancellationToken).Groups;
         }
     }
 }

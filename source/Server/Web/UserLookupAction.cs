@@ -11,6 +11,7 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.Web
     internal class UserLookupAction : IAsyncApiAction
     {
         static readonly IRequiredParameter<string> PartialName = new RequiredQueryParameterProperty<string>("partialName", "Partial username to lookup");
+        static readonly BadRequestRegistration Disabled = new BadRequestRegistration($"The {DirectoryServicesAuthentication.ProviderName} is currently disabled");
         static readonly OctopusJsonRegistration<ExternalUserLookupResult> SearchResults = new OctopusJsonRegistration<ExternalUserLookupResult>();
 
         readonly ICanSearchActiveDirectoryUsers userSearch;
@@ -30,9 +31,8 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.Web
                 {
                     var externalUserLookupResult = userSearch.Search(name, cts.Token);
                     if (externalUserLookupResult is ISuccessResult<ExternalUserLookupResult> successResult)
-                        context.Response.AsOctopusJson(successResult.Value);
-                    else
-                        context.Response.BadRequest($"The {DirectoryServicesAuthentication.ProviderName} is currently disabled");
+                        return Task.FromResult(SearchResults.Response(successResult.Value));
+                    return Task.FromResult(Disabled.Response());
                 }
             });
         }
