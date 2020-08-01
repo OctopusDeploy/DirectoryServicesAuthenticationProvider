@@ -11,8 +11,8 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices
 
         public DirectoryServicesApi()
         {
-            Add<ListSecurityGroupsAction>("GET", ApiExternalGroupsSearch, new SecuredWhenEnabledEndpointInvocation<IDirectoryServicesConfigurationStore>());
-            Add<UserLookupAction>("GET", ApiExternalUsersSearch, new SecuredWhenEnabledEndpointInvocation<IDirectoryServicesConfigurationStore>());
+            Add<ListSecurityGroupsAction>("GET", ApiExternalGroupsSearch, RouteCategory.Api, new SecuredWhenEnabledEndpointInvocation<IDirectoryServicesConfigurationStore>());
+            Add<UserLookupAction>("GET", ApiExternalUsersSearch, RouteCategory.Api, new SecuredWhenEnabledEndpointInvocation<IDirectoryServicesConfigurationStore>());
         }
     }
 }
