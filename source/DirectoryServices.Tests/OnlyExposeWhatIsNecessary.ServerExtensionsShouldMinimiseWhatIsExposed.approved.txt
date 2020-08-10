@@ -1,1 +1,3 @@
 Octopus.Server.Extensibility.Authentication.DirectoryServices.DirectoryServicesExtension
+Octopus.Server.Extensibility.Authentication.DirectoryServices.IntegratedAuthentication.ApiConstants
+Octopus.Server.Extensibility.Authentication.DirectoryServices.IntegratedAuthentication.DomainCookieOptions
