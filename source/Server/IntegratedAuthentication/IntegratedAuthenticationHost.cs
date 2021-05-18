@@ -55,9 +55,15 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.Integrat
 
         public Task StartAsync()
         {
-            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            if (!configurationStore.GetIsEnabled())
             {
-                // HttpSys is only supported on Windows, and we're not planning to support Negotiate on Kestrel at this point
+                return Task.CompletedTask;
+            }
+
+            if (configuration.GetWebServer() != WebServer.HttpSys)
+            {
+                // This HTTP.sys based integrated authentication endpoint will only work when the server is also
+                // running HTTP.sys because it requires port sharing
                 return Task.CompletedTask;
             }
 
