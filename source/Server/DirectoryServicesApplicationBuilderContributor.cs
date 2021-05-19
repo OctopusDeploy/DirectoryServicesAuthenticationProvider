@@ -7,7 +7,7 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices
     {
         public void ContributeTo(IApplicationBuilder instance)
         {
-            instance.UseAuthentication();
+            instance.UseAuthentication(); //
         }
     }
 }
