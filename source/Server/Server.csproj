@@ -23,6 +23,7 @@
     <PackageReference Include="Octopus.Server.Extensibility" Version="14.0.5" />
     <PackageReference Include="Octopus.Server.Extensibility.Authentication" Version="10.0.4-ci0001" />
     <PackageReference Include="Octopus.Server.Extensibility.Authentication" Version="10.0.4-missedthemark-ha0001" />
+    <PackageReference Include="Octopus.Server.Extensibility.Authentication" Version="10.0.4-missedthemark-ha0002" />
     <PackageReference Include="Octopus.Server.Extensibility" Version="14.0.1" />
     <PackageReference Include="Octopus.Diagnostics" Version="2.1.1" />
     <PackageReference Include="Octopus.Data" Version="6.0.0" />
