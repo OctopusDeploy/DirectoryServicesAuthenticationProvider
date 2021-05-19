@@ -6,7 +6,7 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices
 {
     public class DirectoryServicesServiceCollectionContributor : IContributeToType<IServiceCollection>
     {
-        public void Contribute(IServiceCollection instance)
+        public void ContributeTo(IServiceCollection instance)
         {
             instance.AddAuthentication(NegotiateDefaults.AuthenticationScheme).AddNegotiate();
         }
