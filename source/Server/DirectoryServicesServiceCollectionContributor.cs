@@ -19,6 +19,7 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices
             if (configuration.GetWebServer() == WebServer.Kestrel)
             {
                 instance.AddAuthentication(NegotiateDefaults.AuthenticationScheme).AddNegotiate();
+                instance.AddControllers().AddControllersAsServices();
             }
         }
     }
