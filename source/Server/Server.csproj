@@ -17,18 +17,16 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Authentication.Negotiate" Version="5.0.6" />
+    <PackageReference Include="Octopus.Server.Extensibility" Version="14.0.6-missedthemark-ha0002" />
     <PackageReference Include="System.DirectoryServices.AccountManagement" Version="4.5.0" />
     <PackageReference Include="System.DirectoryServices" Version="4.5.0" />
     <PackageReference Include="Octopus.Time" Version="1.1.6" />
     <PackageReference Include="Octopus.Server.Extensibility.Authentication" Version="10.0.3" />
-    <PackageReference Include="Octopus.Server.Extensibility" Version="14.0.5" />
     <PackageReference Include="Octopus.Server.Extensibility.Authentication" Version="10.0.4-ci0001" />
     <PackageReference Include="Octopus.Server.Extensibility.Authentication" Version="10.0.4-missedthemark-ha0001" />
     <PackageReference Include="Octopus.Server.Extensibility.Authentication" Version="10.0.4-missedthemark-ha0002" />
-    <PackageReference Include="Octopus.Server.Extensibility" Version="14.0.4" />
     <PackageReference Include="Octopus.Server.Extensibility.Authentication" Version="10.0.4-missedthemark-ha0003" />
     <PackageReference Include="Octopus.Server.Extensibility.Authentication" Version="10.0.4-missedthemark-ha0004" />
-    <PackageReference Include="Octopus.Server.Extensibility" Version="14.0.6-missedthemark-ha0001" />
     <PackageReference Include="Octopus.Diagnostics" Version="2.1.1" />
     <PackageReference Include="Octopus.Data" Version="6.0.0" />
     <PackageReference Include="Octopus.Configuration" Version="3.0.0" />
