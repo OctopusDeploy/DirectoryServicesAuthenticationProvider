@@ -55,11 +55,6 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.Integrat
 
         public Task StartAsync()
         {
-            if (!configurationStore.GetIsEnabled())
-            {
-                return Task.CompletedTask;
-            }
-
             if (configuration.GetWebServer() != WebServer.HttpSys)
             {
                 // This HTTP.sys based integrated authentication endpoint will only work when the server is also
