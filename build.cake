@@ -3,6 +3,7 @@
 //////////////////////////////////////////////////////////////////////
 #tool "nuget:?package=GitVersion.CommandLine&prerelease"
 #tool "nuget:?package=ILRepack"
+#addin nuget:?package=Cake.Incubator&version=6.0.0
 //#tool "nuget:?package=ilmerge"
 
 using Path = System.IO.Path;
@@ -115,7 +116,7 @@ Task("__Pack")
 
 			
 	
-		var assemblyPaths = GetFiles("./" + netstd + "Microsoft.AspNetCore.Authentication.Negotiate.dll");	
+		var assemblyPaths = GetFiles(solutionDir + "Server" + netstd + "Microsoft.AspNetCore.Authentication.Negotiate.dll");	
 		
 		var ilrSettings = new ILRepackSettings(){
 			Libs = new List<DirectoryPath>(new DirectoryPath[] {solutionDir + "Server" + netstd})
@@ -124,6 +125,10 @@ Task("__Pack")
 		//libs.Add(solutionDir + "Server" + netstd);
 		//ilrSettings.Libs = libs;	
 		var dll = solutionDir + "Server" + netstd + "Octopus.Server.Extensibility.Authentication.DirectoryServices.dll";
+		var dllOut = solutionDir + "Server/dd/" + "Octopus.Server.Extensibility.Authentication.DirectoryServices2.dll";
+	
+		Information(assemblyPaths.Dump());
+		
 		ILRepack(dll, dll, assemblyPaths, ilrSettings);
 		/*
 		var settings = new ILMergeSettings();
