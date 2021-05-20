@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Builder;
-using Octopus.Server.Extensibility.Authentication.Extensions;
+using Octopus.Server.Extensibility.Extensions;
 
 namespace Octopus.Server.Extensibility.Authentication.DirectoryServices
 {
