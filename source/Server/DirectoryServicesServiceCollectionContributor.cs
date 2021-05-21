@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authentication.Negotiate;
+﻿using System.Reflection;
+using Microsoft.AspNetCore.Authentication.Negotiate;
 using Microsoft.Extensions.DependencyInjection;
 using Octopus.Server.Extensibility.Extensions;
 using Octopus.Server.Extensibility.HostServices.Web;
@@ -19,7 +20,9 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices
             if (configuration.GetWebServer() == WebServer.Kestrel)
             {
                 instance.AddAuthentication(NegotiateDefaults.AuthenticationScheme).AddNegotiate();
-                instance.AddControllers().AddControllersAsServices();
+                instance.AddControllers()
+                        .AddApplicationPart(typeof(DirectoryServicesServiceCollectionContributor).Assembly)
+                        .AddControllersAsServices();
             }
         }
     }
