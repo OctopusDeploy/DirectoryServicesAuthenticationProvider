@@ -2,9 +2,6 @@
 // TOOLS
 //////////////////////////////////////////////////////////////////////
 #tool "nuget:?package=GitVersion.CommandLine&prerelease"
-#tool "nuget:?package=ILRepack"
-#addin nuget:?package=Cake.Incubator&version=6.0.0
-//#tool "nuget:?package=ilmerge"
 
 using Path = System.IO.Path;
 using IO = System.IO;
@@ -24,7 +21,7 @@ var publishDir = "./publish";
 var localPackagesDir = "../LocalPackages";
 var artifactsDir = "./artifacts";
 var assetDir = "./BuildAssets";
-var netstd = "/bin/Release/net5.0-windows/";
+var netstd = "/bin/Release/net5.0/";
 var outputDll = "Octopus.Server.Extensibility.Authentication.DirectoryServices.dll";
 
 var gitVersionInfo = GitVersion(new GitVersionSettings {
@@ -113,31 +110,6 @@ Task("__Pack")
         var odNugetPackDir = Path.Combine(publishDir, "od");
         var nuspecFile = "Octopus.Server.Extensibility.Authentication.DirectoryServices.nuspec";
         var files = new string[0];
-
-			
-	
-		var assemblyPaths = GetFiles(solutionDir + "Server" + netstd + "Microsoft.AspNetCore.Authentication.Negotiate.dll");	
-		
-		var ilrSettings = new ILRepackSettings(){
-			Libs = new List<DirectoryPath>(new DirectoryPath[] {solutionDir + "Server" + netstd})
-		};
-		//var libs = new List<DirectoryPath>(new DirectoryPath[] {solutionDir + "Server" + netstd});
-		//libs.Add(solutionDir + "Server" + netstd);
-		//ilrSettings.Libs = libs;	
-		var dll = solutionDir + "Server" + netstd + "Octopus.Server.Extensibility.Authentication.DirectoryServices.dll";
-		var dllOut = solutionDir + "Server/dd/" + "Octopus.Server.Extensibility.Authentication.DirectoryServices2.dll";
-	
-		Information(assemblyPaths.Dump());
-		
-		ILRepack(dll, dll, assemblyPaths, ilrSettings);
-		/*
-		var settings = new ILMergeSettings();
-		settings.WorkingDirectory = solutionDir + "Server" + netstd;
-		settings.ArgumentCustomization = args=>args.Append("-StorePasswordInClearText")
-		ILMerge(dll, dll, assemblyPaths);*/
-		
-		
-		
 
         CreateDirectory(odNugetPackDir);
         CopyFileToDirectory(Path.Combine(assetDir, nuspecFile), odNugetPackDir);
