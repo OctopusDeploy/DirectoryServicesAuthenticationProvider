@@ -1,8 +1,10 @@
-﻿using System.Threading.Tasks;
+﻿using System.Net;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Negotiate;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Octopus.Server.Extensibility.Authentication.DirectoryServices.Configuration;
 
 namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.IntegratedAuthentication
 {
@@ -10,18 +12,25 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.Integrat
     public class IntegratedAuthenticationController : ControllerBase
     {
         readonly IIntegratedAuthenticationHandler integratedAuthenticationHandler;
+        readonly IDirectoryServicesConfigurationStore directoryServicesConfigurationStore;
 
-        public IntegratedAuthenticationController(IIntegratedAuthenticationHandler integratedAuthenticationHandler)
+        public IntegratedAuthenticationController(IIntegratedAuthenticationHandler integratedAuthenticationHandler, IDirectoryServicesConfigurationStore directoryServicesConfigurationStore)
         {
             this.integratedAuthenticationHandler = integratedAuthenticationHandler;
+            this.directoryServicesConfigurationStore = directoryServicesConfigurationStore;
         }
 
         [AllowAnonymous]
         [HttpGet("integrated-challenge")]
-        public async Task Auth()
+        public async Task IntegratedChallenge()
         {
-            //TODO: Shane saw something! 👀
-            if (!Request.HttpContext.User.Identity?.IsAuthenticated ?? false)
+            if (!directoryServicesConfigurationStore.GetIsEnabled())
+            {
+                Response.StatusCode = (int) HttpStatusCode.BadRequest;
+                return;
+            }
+            
+            if (string.IsNullOrWhiteSpace(HttpContext.User.Identity?.Name))
             {
                 await Request.HttpContext.ChallengeAsync(NegotiateDefaults.AuthenticationScheme);
             }
@@ -29,14 +38,6 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.Integrat
             {
                 await integratedAuthenticationHandler.HandleRequest(Request.HttpContext);
             }
-        }
-
-        //TODO: Delete me please
-        [AllowAnonymous]
-        [HttpGet("integrated-test")]
-        public string Test()
-        {
-            return $"Hello {Request.HttpContext.User.Identity?.Name}! Auth Type: {Request.HttpContext.User.Identity?.AuthenticationType}";
         }
     }
 }

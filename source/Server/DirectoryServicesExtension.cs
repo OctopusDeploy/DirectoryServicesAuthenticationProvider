@@ -1,5 +1,4 @@
 ﻿using Autofac;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Octopus.Server.Extensibility.Authentication.DirectoryServices.Configuration;
 using Octopus.Server.Extensibility.Authentication.DirectoryServices.DirectoryServices;
@@ -97,8 +96,7 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices
             builder.RegisterType<IntegratedAuthenticationHost>().As<IShareWebHostLifetime>().SingleInstance();
             builder.RegisterType<IntegratedChallengeCoordinator>().As<IIntegratedChallengeCoordinator>()
                 .SingleInstance();
-
-            builder.RegisterType<DirectoryServicesApplicationBuilderContributor>().As<IContributeToType<IApplicationBuilder>>();
+            
             builder.RegisterType<DirectoryServicesServiceCollectionContributor>().As<IContributeToType<IServiceCollection>>();
         }
     }
