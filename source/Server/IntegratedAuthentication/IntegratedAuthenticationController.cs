@@ -9,6 +9,13 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.Integrat
     [ApiController]
     public class IntegratedAuthenticationController : ControllerBase
     {
+        readonly IIntegratedAuthenticationHandler integratedAuthenticationHandler;
+
+        public IntegratedAuthenticationController(IIntegratedAuthenticationHandler integratedAuthenticationHandler)
+        {
+            this.integratedAuthenticationHandler = integratedAuthenticationHandler;
+        }
+
         [AllowAnonymous]
         [HttpGet("integrated-challenge")]
         public async Task Auth()
@@ -17,6 +24,10 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.Integrat
             if (!Request.HttpContext.User.Identity?.IsAuthenticated ?? false)
             {
                 await Request.HttpContext.ChallengeAsync(NegotiateDefaults.AuthenticationScheme);
+            }
+            else
+            {
+                await integratedAuthenticationHandler.HandleRequest(Request.HttpContext);
             }
         }
 

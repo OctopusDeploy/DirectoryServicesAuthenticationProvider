@@ -41,7 +41,7 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices
                 .As<IContributeMappings>()
                 .InstancePerDependency();
 
-            builder.RegisterType<DirectoryServicesUserCreationFromPrincipal>().AsSelf().InstancePerDependency();
+            builder.RegisterType<DirectoryServicesUserCreationFromPrincipal>().AsSelf().As<ISupportsAutoUserCreationFromPrincipal>().InstancePerDependency();
 
             builder.RegisterType<DirectoryServicesContextProvider>().As<IDirectoryServicesContextProvider>()
                 .InstancePerDependency();
