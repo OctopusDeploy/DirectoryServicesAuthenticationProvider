@@ -9,13 +9,6 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.Integrat
     [ApiController]
     public class IntegratedAuthenticationController : ControllerBase
     {
-        /*
-        readonly IIntegratedAuthenticationHandler integratedAuthenticationHandler;
-        public IntegratedAuthenticationController(IIntegratedAuthenticationHandler integratedAuthenticationHandler)
-        {
-            this.integratedAuthenticationHandler = integratedAuthenticationHandler;
-        }*/
-
         [AllowAnonymous]
         [HttpGet("integrated-challenge")]
         public async Task Auth()
