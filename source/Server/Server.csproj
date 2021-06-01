@@ -18,6 +18,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Authentication.Negotiate" Version="5.0.6" />
     <PackageReference Include="Octopus.Server.Extensibility" Version="14.0.6-missedthemark-ha0002" />
+    <PackageReference Include="Octopus.Server.Extensibility.Web" Version="0.0.17" />
     <PackageReference Include="System.DirectoryServices.AccountManagement" Version="4.5.0" />
     <PackageReference Include="System.DirectoryServices" Version="4.5.0" />
     <PackageReference Include="Octopus.Time" Version="1.1.6" />
