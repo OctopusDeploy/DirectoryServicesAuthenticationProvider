@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net451;netstandard2.0</TargetFrameworks>
+    <TargetFramework>net5.0</TargetFramework>
     <RootNamespace>Octopus.Client.Extensibility.Authentication.DirectoryServices</RootNamespace>
     <AssemblyName>Octopus.Client.Extensibility.Authentication.DirectoryServices</AssemblyName>
     <NeutralLanguage>en-US</NeutralLanguage>
