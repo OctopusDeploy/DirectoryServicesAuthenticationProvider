@@ -3,7 +3,7 @@ using Octopus.Server.Extensibility.Extensions.Infrastructure.Configuration;
 
 namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.Configuration
 {
-    class DirectoryServicesConfiguration : ExtensionConfigurationDocument
+    public class DirectoryServicesConfiguration : ExtensionConfigurationDocument
     {
         public DirectoryServicesConfiguration() : base(DirectoryServicesConfigurationStore.SingletonId, "DirectoryServices", "Octopus Deploy", "1.0")
         {

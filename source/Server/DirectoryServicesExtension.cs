@@ -13,6 +13,7 @@ using Octopus.Server.Extensibility.Extensions.Infrastructure.Web;
 using Octopus.Server.Extensibility.Extensions.Infrastructure.Web.Content;
 using Octopus.Server.Extensibility.Extensions.Mappings;
 using Octopus.Server.Extensibility.HostServices.Web;
+using Octopus.Server.Extensibility.Web.Api;
 
 namespace Octopus.Server.Extensibility.Authentication.DirectoryServices
 {
@@ -38,7 +39,10 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices
                  .As<IContributeMappings>()
                  .InstancePerDependency();
             
-             builder.RegisterType<DirectoryServicesUserCreationFromPrincipal>().AsSelf().InstancePerDependency();
+             builder.RegisterType<DirectoryServicesUserCreationFromPrincipal>()
+                 .AsSelf()
+                 .As<ISupportsAutoUserCreationFromPrincipal>()
+                 .InstancePerDependency();
             
              builder.RegisterType<DirectoryServicesContextProvider>().As<IDirectoryServicesContextProvider>().InstancePerDependency();
              builder.RegisterType<DirectoryServicesObjectNameNormalizer>().As<IDirectoryServicesObjectNameNormalizer>().InstancePerDependency();
@@ -87,6 +91,8 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices
             builder.RegisterType<IntegratedAuthenticationHandler>().As<IIntegratedAuthenticationHandler>().InstancePerDependency();
             builder.RegisterType<IntegratedAuthenticationHost>().As<IShareWebHostLifetime>().SingleInstance();
             builder.RegisterType<IntegratedChallengeCoordinator>().As<IIntegratedChallengeCoordinator>().SingleInstance();
+
+            builder.RegisterType<DirectoryServicesWebServiceContributor>().As<IContributeToWebServices>();
         }
     }
 }
