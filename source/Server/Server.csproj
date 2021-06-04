@@ -25,9 +25,6 @@
     <PackageReference Include="Octopus.Data" Version="6.0.0" />
     <PackageReference Include="Octopus.Configuration" Version="3.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Server.HttpSys" Version="2.2.6" />
-    <!--
-    <PackageReference Include="Microsoft.AspNetCore.Hosting" Version="2.1.1" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication" Version="2.1.2" /> -->
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Web\Static\images\directory_services_signin_buttons\microsoft-logo.svg" />
