@@ -19,10 +19,9 @@
     <tags>automation deployment</tags>
     <developmentDependency>true</developmentDependency>
 	<dependencies>
-      <dependency id="Octopus.Server.Extensibility.Authentication" version="1.0" />
 	</dependencies>
   </metadata>
   <files>
-    <file src="*" target="tools" />
+    <file src="..\source\Server\bin\Release\net5.0\*.dll" target="tools" />
   </files>
 </package>
