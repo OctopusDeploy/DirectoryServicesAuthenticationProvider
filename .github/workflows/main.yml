@@ -11,7 +11,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-18.04
+    runs-on: windows-latest
     steps:
       - uses: actions/checkout@v2
         with:
@@ -24,8 +24,8 @@ jobs:
           
       - name: Nuke Build 🏗
         id: build
-        shell: bash
-        run: ./build.sh --verbosity verbose
+        shell: pwsh
+        run: ./build.ps1 --verbosity verbose
         env:
           OCTOVERSION_CurrentBranch: ${{ github.ref }}
 
