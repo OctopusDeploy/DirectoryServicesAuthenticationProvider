@@ -24,6 +24,9 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.Director
 
         public IResultFromExtension<IUser> GetOrCreateUser(IPrincipal principal, CancellationToken cancellationToken)
         {
+            if (principal.Identity?.Name == null)
+                        return ResultFromExtension<IUser>.Failed();
+
             return !configurationStore.GetIsEnabled() ?
                 ResultFromExtension<IUser>.ExtensionDisabled() :
                 credentialValidator.GetOrCreateUser(principal.Identity.Name, cancellationToken);
