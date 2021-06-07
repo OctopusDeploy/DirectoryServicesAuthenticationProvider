@@ -1,3 +1,4 @@
+using System.Linq;
 using Nuke.Common;
 using Nuke.Common.CI;
 using Nuke.Common.Execution;
@@ -116,9 +117,11 @@ class Build : NukeBuild
         .DependsOn(Pack)
         .Executes(() =>
         {
-            ArtifactsDirectory.GlobFiles("*.nupkg")
+            var artifactPaths = ArtifactsDirectory.GlobFiles("*.nupkg")
                 .NotEmpty()
-                .ForEach(package => System.Console.WriteLine($"::set-output name=packages_to_push::{package}"));
+                .Select(p => p.ToString());
+
+            System.Console.WriteLine($"::set-output name=packages_to_push::{string.Join(',', artifactPaths)}");
         });
 
     Target Default => _ => _
