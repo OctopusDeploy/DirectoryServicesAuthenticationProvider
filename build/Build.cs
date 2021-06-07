@@ -88,7 +88,17 @@ class Build : NukeBuild
                 .EnableNoBuild()
                 .DisableIncludeSymbols()
                 .SetVerbosity(DotNetVerbosity.Normal)
-                .SetProperty("NuspecFile", "../../build/Octopus.Server.Extensibility.Authentication.DirectoryServices.nuspec")
+                .SetProperty("NuspecFile", RootDirectory / "build/Octopus.Server.Extensibility.Authentication.DirectoryServices.nuspec")
+                .SetProperty("NuspecProperties", $"Version={OctoVersionInfo.NuGetVersion}"));
+
+            DotNetPack(_ => _
+                .SetProject(RootDirectory / "source/Client/Client.csproj")
+                .SetVersion(OctoVersionInfo.FullSemVer)
+                .SetConfiguration(Configuration)
+                .SetOutputDirectory(ArtifactsDirectory)
+                .EnableNoBuild()
+                .DisableIncludeSymbols()
+                .SetVerbosity(DotNetVerbosity.Normal)
                 .SetProperty("NuspecProperties", $"Version={OctoVersionInfo.NuGetVersion}"));
         });
 
