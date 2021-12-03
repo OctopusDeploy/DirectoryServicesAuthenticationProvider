@@ -29,6 +29,19 @@ jobs:
         env:
           OCTOVERSION_CurrentBranch: ${{ github.ref }}
 
+      - name: Tag release (when not pre-release) 🏷️
+        if: ${{ !contains( steps.build.outputs.octoversion_fullsemver, '-' ) }}
+        uses: actions/github-script@v3
+        with:
+          github-token: ${{ github.token }}
+          script: |
+            github.git.createRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: "refs/tags/${{ steps.build.outputs.octoversion_fullsemver }}",
+              sha: context.sha
+            })
+
       - name: Install Octopus CLI 🐙
         uses: OctopusDeploy/install-octopus-cli-action@v1.1.1
         with:
