@@ -26,8 +26,8 @@ jobs:
         id: build
         shell: pwsh
         run: ./build.ps1 \
-        --OctoVersionBranch ${{ github.head_ref || github.ref }} \
-        --OctoVersionPatch ${{ github.run_number }}
+          --OctoVersionBranch ${{ github.head_ref || github.ref }} \
+          --OctoVersionPatch ${{ github.run_number }}
 
       - name: Tag release (when not pre-release) 🏷️
         if: ${{ !contains( steps.build.outputs.octoversion_fullsemver, '-' ) }}
