@@ -25,9 +25,7 @@ jobs:
       - name: Nuke Build 🏗
         id: build
         shell: pwsh
-        run: ./build.ps1 \
-          --OctoVersionBranch ${{ github.head_ref || github.ref }} \
-          --OctoVersionPatch ${{ github.run_number }}
+        run: ./build.ps1 --OctoVersionBranch ${{ github.head_ref || github.ref }} --OctoVersionPatch ${{ github.run_number }}
 
       - name: Tag release (when not pre-release) 🏷️
         if: ${{ !contains( steps.build.outputs.octoversion_fullsemver, '-' ) }}
