@@ -10,8 +10,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Nuke.Common" Version="5.1.2" />
-    <PackageReference Include="Nuke.OctoVersion" Version="0.2.438" />
+    <PackageReference Include="Nuke.Common" Version="5.4.0-mattr-octoversio0017" />
+    <PackageReference Include="Nuke.OctoVersion" Version="0.2.685" />
   </ItemGroup>
 
 </Project>
