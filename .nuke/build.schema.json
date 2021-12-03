@@ -35,6 +35,24 @@
           "type": "boolean",
           "description": "Disables displaying the NUKE logo"
         },
+        "OctoVersionAutoDetectBranch": {
+          "type": "boolean"
+        },
+        "OctoVersionBranch": {
+          "type": "string"
+        },
+        "OctoVersionFullSemVer": {
+          "type": "integer"
+        },
+        "OctoVersionMajor": {
+          "type": "integer"
+        },
+        "OctoVersionMinor": {
+          "type": "integer"
+        },
+        "OctoVersionPatch": {
+          "type": "integer"
+        },
         "Plan": {
           "type": "boolean",
           "description": "Shows the execution plan (HTML)"
@@ -56,12 +74,10 @@
           "items": {
             "type": "string",
             "enum": [
-              "CalculateVersion",
               "Clean",
               "Compile",
               "CopyToLocalPackages",
               "Default",
-              "OutputPackagesToPush",
               "Pack",
               "Restore",
               "Test"
@@ -78,12 +94,10 @@
           "items": {
             "type": "string",
             "enum": [
-              "CalculateVersion",
               "Clean",
               "Compile",
               "CopyToLocalPackages",
               "Default",
-              "OutputPackagesToPush",
               "Pack",
               "Restore",
               "Test"
