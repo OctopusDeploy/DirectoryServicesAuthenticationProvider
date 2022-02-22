@@ -8,6 +8,7 @@ using Octopus.Server.Extensibility.Authentication.DirectoryServices.Configuratio
 using Octopus.Server.Extensibility.Authentication.Extensions;
 using Octopus.Server.Extensibility.Authentication.HostServices;
 using Octopus.Server.Extensibility.Results;
+using Polly;
 
 namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.DirectoryServices
 {
@@ -147,7 +148,15 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.Director
 
         static void ReadAuthorizationGroups(IUserPrincipalWrapper principal, ICollection<string> groups, CancellationToken cancellationToken)
         {
-            ReadGroups(principal.GetAuthorizationGroups(cancellationToken), groups);
+            var retryPolicy = Policy
+                .Handle<PrincipalOperationException>()
+                .WaitAndRetry(5, retryAttempt => TimeSpan.FromMilliseconds(250 * retryAttempt));
+
+            retryPolicy.Execute(() =>
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                ReadGroups(principal.GetAuthorizationGroups(cancellationToken), groups);
+            });
         }
 
         static void ReadUserGroups(IUserPrincipalWrapper principal, ICollection<string> groups, CancellationToken cancellationToken)
