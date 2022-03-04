@@ -258,6 +258,21 @@ namespace DirectoryServices.Tests
             public ReferenceCollection ExternalIdentifiers { get; }
             public HashSet<Identity> Identities { get; }
 
+            public void RevokeSessions(DateTimeOffset validFrom)
+            {
+                throw new NotImplementedException();
+            }
+
+            public bool ValidateAccessToken(DateTimeOffset tokenIssuedAt)
+            {
+                throw new NotImplementedException();
+            }
+
+            public bool ValidateRefreshToken(DateTimeOffset tokenIssuedAt)
+            {
+                throw new NotImplementedException();
+            }
+
             public void SetPassword(string plainTextPassword)
             {
                 throw new NotImplementedException();
