@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Octopus.Server.Extensibility.Authentication.DirectoryServices.Configuration;
 using Octopus.Server.Extensibility.Web.Extensions;
-using Swashbuckle.AspNetCore.Annotations;
 
 namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.IntegratedAuthentication
 {
@@ -25,10 +24,6 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.Integrat
 
         [AllowAnonymous]
         [HttpGet("integrated-challenge")]
-        [SwaggerOperation(
-            Summary = "Challenge the request against the integrated authentication scheme",
-            OperationId = "getIntegratedChallenge"
-        )]
         public async Task IntegratedChallenge()
         {
             if (!directoryServicesConfigurationStore.GetIsEnabled())
