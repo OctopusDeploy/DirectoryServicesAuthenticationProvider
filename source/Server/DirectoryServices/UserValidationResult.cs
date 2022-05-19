@@ -7,7 +7,7 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.Director
         public UserValidationResult(UserPrincipal userPrincipal, string? domain)
             :this(userPrincipal.UserPrincipalName,
                 $"{domain}\\{userPrincipal.SamAccountName}",
-                domain, 
+                domain,
                 string.IsNullOrWhiteSpace(userPrincipal.DisplayName) ? userPrincipal.Name : userPrincipal.DisplayName,
                 userPrincipal.EmailAddress)
         {
@@ -16,7 +16,7 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.Director
         public UserValidationResult(string userPrincipalName, string samAccountName, string? domain, string displayName, string emailAddress)
         {
             UserPrincipalName = userPrincipalName;
-            SamAccountName = samAccountName.Contains("\\") ? samAccountName : $"{domain}\\{samAccountName}";
+            SamAccountName = samAccountName.Contains("\\") && !samAccountName.StartsWith("\\") ? samAccountName : $"{domain}\\{samAccountName.TrimStart('\\')}";
             Domain = domain;
             DisplayName = displayName;
             EmailAddress = emailAddress;
