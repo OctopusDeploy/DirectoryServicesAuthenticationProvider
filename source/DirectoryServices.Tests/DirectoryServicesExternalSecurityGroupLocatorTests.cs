@@ -49,7 +49,7 @@ namespace DirectoryServices.Tests
         [Test]
         public void GetGroupIdsForUser_NotFound()
         {
-            userPrincipalFinder.FindByIdentity(null, null).ReturnsForAnyArgs((IUserPrincipalWrapper) null);
+            userPrincipalFinder.FindByIdentity(Arg.Any<PrincipalContext>(), Arg.Any<string>()).Returns((IUserPrincipalWrapper) null);
 
             var result = locator.GetGroupIdsForUser("Bob", CancellationToken.None);
             result.WasAbleToRetrieveGroups.ShouldBeFalse();
@@ -62,7 +62,7 @@ namespace DirectoryServices.Tests
         {
 
             var userPrincipal = Substitute.For<IUserPrincipalWrapper>();
-            userPrincipalFinder.FindByIdentity(null, null).ReturnsForAnyArgs(userPrincipal);
+            userPrincipalFinder.FindByIdentity(Arg.Any<PrincipalContext>(), Arg.Any<string>()).Returns(userPrincipal);
 
             var authGroupsException = new Exception("AuthorizationGroups Exception");
             userPrincipal.GetAuthorizationGroups(CancellationToken.None).ThrowsForAnyArgs(authGroupsException);
@@ -83,7 +83,7 @@ namespace DirectoryServices.Tests
         public void GetGroupIdsForUser_ErrorGettingAnyGroups()
         {
             var userPrincipal = Substitute.For<IUserPrincipalWrapper>();
-            userPrincipalFinder.FindByIdentity(null, null).ReturnsForAnyArgs(userPrincipal);
+            userPrincipalFinder.FindByIdentity(Arg.Any<PrincipalContext>(), Arg.Any<string>()).Returns(userPrincipal);
 
             var authGroupsException = new Exception("AuthorizationGroups Exception");
             userPrincipal.GetAuthorizationGroups(CancellationToken.None).ThrowsForAnyArgs(authGroupsException);
@@ -105,7 +105,7 @@ namespace DirectoryServices.Tests
         {
 
             var userPrincipal = Substitute.For<IUserPrincipalWrapper>();
-            userPrincipalFinder.FindByIdentity(null, null).ReturnsForAnyArgs(userPrincipal);
+            userPrincipalFinder.FindByIdentity(Arg.Any<PrincipalContext>(), Arg.Any<string>()).Returns(userPrincipal);
 
             userPrincipal.GetAuthorizationGroups(CancellationToken.None).ReturnsForAnyArgs(new[] {new FakeGroupPrincipal(groupSid)});
 

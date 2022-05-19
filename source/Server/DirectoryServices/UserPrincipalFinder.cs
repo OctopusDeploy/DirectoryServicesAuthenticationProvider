@@ -4,12 +4,15 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.Director
 {
     interface IUserPrincipalFinder
     {
-        IUserPrincipalWrapper FindByIdentity(PrincipalContext context, string samAccountName);
+        IUserPrincipalWrapper? FindByIdentity(PrincipalContext context, string samAccountName);
     }
 
     class UserPrincipalFinder : IUserPrincipalFinder
     {
-        public IUserPrincipalWrapper FindByIdentity(PrincipalContext context, string samAccountName)
-            => new UserPrincipalWrapper(UserPrincipal.FindByIdentity(context, samAccountName));
+        public IUserPrincipalWrapper? FindByIdentity(PrincipalContext context, string samAccountName)
+        {
+            var findByIdentity = UserPrincipal.FindByIdentity(context, samAccountName);
+            return findByIdentity is null ? null : new UserPrincipalWrapper(findByIdentity);
+        }
     }
 }
