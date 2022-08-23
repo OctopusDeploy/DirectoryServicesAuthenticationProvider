@@ -130,7 +130,8 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.Director
 
                     // Reads just the groups they are a member of - more reliable but not ideal
                     using (var principal = userPrincipalFinder.FindByIdentity(context, samAccountName))
-                        ReadUserGroups(principal, groups, cancellationToken);
+                        if (principal is not null)
+                            ReadUserGroups(principal, groups, cancellationToken);
 
                     return new DirectoryServicesExternalSecurityGroupLocatorResult(groups);
                 }

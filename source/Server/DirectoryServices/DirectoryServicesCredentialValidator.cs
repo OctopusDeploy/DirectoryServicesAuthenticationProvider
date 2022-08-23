@@ -61,7 +61,7 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.Director
                 return ResultFromExtension<IUser>.Failed(validatedUser.ValidationMessage);
             }
 
-            return GetOrCreateUser(validatedUser, validatedUser.UserPrincipalName, validatedUser.Domain, cancellationToken);
+            return GetOrCreateUser(validatedUser, validatedUser.UserPrincipalName, validatedUser.Domain ?? EnvironmentUserDomainName, cancellationToken);
         }
 
         public IResultFromExtension<IUser> GetOrCreateUser(string username, CancellationToken cancellationToken)
@@ -81,9 +81,9 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.Director
             var userPrincipalName = objectNameNormalizer.ValidatedUserPrincipalName(principal.UserPrincipalName, fallbackUsername, fallbackDomain);
 
             var samAccountName = principal.SamAccountName ?? string.Empty;
-            if (!string.IsNullOrWhiteSpace(fallbackDomain) && !samAccountName.Contains("\\"))
+            if (!string.IsNullOrWhiteSpace(fallbackDomain) && (!samAccountName.Contains("\\") || samAccountName.StartsWith("\\")))
             {
-                samAccountName = fallbackDomain + @"\" + samAccountName;
+                samAccountName = fallbackDomain + @"\" + samAccountName.TrimStart('\\');
             }
 
             var displayName = principal.DisplayName ?? string.Empty;

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using NSubstitute;
 using NUnit.Framework;
@@ -30,6 +31,8 @@ namespace DirectoryServices.Tests
         [SetUp]
         public void SetUp()
         {
+            DirectoryServicesCredentialValidator.EnvironmentUserDomainName = "TestDomain";
+
             directoryServicesConfigurationStore = Substitute.For<IDirectoryServicesConfigurationStore>();
             directoryServicesConfigurationStore.GetIsEnabled().Returns(true);
             directoryServicesConfigurationStore.GetAllowFormsAuthenticationForDomainUsers().Returns(true);
@@ -237,6 +240,29 @@ namespace DirectoryServices.Tests
             result.ShouldBeOfType<ResultFromExtension<IUser>>();
             updateableUserStore.Received(1).UpdateIdentity("Users-100".ToUserId(), Arg.Any<Identity>(), CancellationToken.None);
             updateableUserStore.DidNotReceive().Create(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(), CancellationToken.None);
+        }
+
+        [Test]
+        public void UserWhoHasSamAccountNameWithBlankDomain()
+        {
+            directoryServicesService.ValidateCredentials("existingUser", "testPassword", CancellationToken.None)
+                .Returns(new UserValidationResult("existingUser@test.com", "\\existingUser", null, string.Empty, String.Empty));
+
+            var user = new User("Users-100".ToUserId(), "existingUser", identityCreator.Create(string.Empty, "existingUser@test.com", "TestDomain\\existingUser", string.Empty));
+
+            updateableUserStore.GetByIdentity(Arg.Any<Identity>()).Returns(new[] { user });
+            updateableUserStore.UpdateIdentity(Arg.Any<UserId>(), Arg.Any<Identity>(), Arg.Any<CancellationToken>()).Returns(x =>
+            {
+                user.Identities.Clear();
+                user.Identities.Add((Identity)x.Args()[1]);
+                return user;
+            });
+
+            var result = validator.ValidateCredentials("existingUser", "testPassword", CancellationToken.None);
+
+            result.ShouldBeOfType<ResultFromExtension<IUser>>()
+                .Value
+                .Identities.First().Claims[IdentityCreator.SamAccountNameClaimType].Value.ShouldBe("TestDomain\\existingUser");
         }
 
         private class User : IUser
