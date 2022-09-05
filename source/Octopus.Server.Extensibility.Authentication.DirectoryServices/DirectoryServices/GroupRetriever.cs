@@ -53,13 +53,13 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.Director
                 var result = groupLocator.GetGroupIdsForUser(samAccountName, cancellationToken);
                 if (result.WasAbleToRetrieveGroups)
                 {
-                    foreach (var groupId in result.GroupsIds.Where(g => !newGroups.Contains(g)))
-                    {
-                        newGroups.Add(groupId);
-                    }
+                    if (result.GroupsIds != null)
+                        foreach (var groupId in result.GroupsIds.Where(g => !newGroups.Contains(g)))
+                        {
+                            newGroups.Add(groupId);
+                        }
 
                     wasAbleToRetrieveSomeGroups = true;
-
                 }
                 else
                 {

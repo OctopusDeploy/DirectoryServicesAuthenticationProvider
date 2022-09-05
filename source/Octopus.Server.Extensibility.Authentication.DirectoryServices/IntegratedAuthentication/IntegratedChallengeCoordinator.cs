@@ -27,7 +27,7 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.Integrat
         {
             // Based on https://github.com/dotnet/runtime/blob/cf63e732fc6fb57c0ea97c1b4ca965acce46343a/src/libraries/System.Net.Security/src/System/Net/Security/NegotiateStreamPal.Windows.cs#L52
             // we're being a bit cautious about using IsAuthenticated
-            if (string.IsNullOrWhiteSpace(context.User.Identity.Name))
+            if (string.IsNullOrWhiteSpace(context.User.Identity?.Name))
             {
                 if (IsNewChallengeRequest(context.Connection.Id))
                 {
@@ -67,7 +67,7 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.Integrat
                 // we pass back to the original link here (e.g. the deep link that originally triggered the sign in)
                 // we normally wouldn't do this without the user being authenticated, but given we know they aren't
                 // authenticated we'll redirect back and rely on the sign in page kicking in again and seeing the cookie.
-                context.Response.Redirect(stateRedirectAfterLoginTo);
+                context.Response.Redirect(stateRedirectAfterLoginTo!);
                 
                 // count this as complete, if the browser comes back on the same connection we'll start over 
                 SetChallengeCompleted(context.Connection.Id);

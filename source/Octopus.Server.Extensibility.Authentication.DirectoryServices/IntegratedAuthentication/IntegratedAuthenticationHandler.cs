@@ -182,7 +182,7 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.Integrat
             {
                 try
                 {
-                    state = JsonConvert.DeserializeObject<LoginState>(stateString.FirstOrDefault());
+                    state = JsonConvert.DeserializeObject<LoginState>(stateString.FirstOrDefault() ?? string.Empty);
                 }
                 catch (Exception e)
                 {
@@ -201,7 +201,7 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.Integrat
 
             // If there is no "RequestPrincipal" in the Context.Items it's not our job to authenticate this request
             var principal = context.User;
-            if (string.IsNullOrWhiteSpace(principal.Identity.Name))
+            if (string.IsNullOrWhiteSpace(principal.Identity?.Name))
                 return null;
 
             using (var cts = CancellationTokenSource.CreateLinkedTokenSource(context.RequestAborted, new CancellationTokenSource(TimeSpan.FromMinutes(1)).Token))

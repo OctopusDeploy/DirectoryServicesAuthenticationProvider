@@ -1,4 +1,5 @@
-﻿using Autofac;
+﻿#pragma warning disable CA1416
+using Autofac;
 using Octopus.Server.Extensibility.Authentication.DirectoryServices.Configuration;
 using Octopus.Server.Extensibility.Authentication.DirectoryServices.DirectoryServices;
 using Octopus.Server.Extensibility.Authentication.DirectoryServices.Identities;

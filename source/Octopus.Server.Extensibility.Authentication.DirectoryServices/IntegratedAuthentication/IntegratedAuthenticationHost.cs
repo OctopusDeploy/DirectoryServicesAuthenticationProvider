@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Runtime.InteropServices;
+using System.Runtime.Versioning;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -34,6 +35,7 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.Integrat
     /// Changing the authentication scheme in this world requires a restart of all nodes, as the setting has to be set
     /// when the WebHost starts.
     /// </summary>
+    [SupportedOSPlatform("Windows")]
     class IntegratedAuthenticationHost : IShareWebHostLifetime
     {
         readonly ISystemLog log;
@@ -88,9 +90,10 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.Integrat
                 }
             });
 
-             builder.Configure(app =>
+            builder.Configure(app =>
              {
-                 app.Use((context, func) =>
+                 // https://docs.microsoft.com/en-us/dotnet/core/compatibility/aspnet-core/6.0/middleware-new-use-overload
+                 app.Run(context =>
                  {
                      if (!configurationStore.GetIsEnabled())
                      {

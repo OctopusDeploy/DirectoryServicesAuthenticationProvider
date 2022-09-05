@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.DirectoryServices.AccountManagement;
 using System.Linq;
+using System.Runtime.Versioning;
 using System.Threading;
 using Octopus.Server.Extensibility.Authentication.DirectoryServices.Configuration;
 using Octopus.Server.Extensibility.Authentication.DirectoryServices.Identities;
@@ -11,6 +12,7 @@ using Octopus.Server.MessageContracts.Features.Users;
 
 namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.DirectoryServices
 {
+    [SupportedOSPlatform("Windows")]
     class UserSearch : ICanSearchActiveDirectoryUsers
     {
         readonly IDirectoryServicesContextProvider contextProvider;
