@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Linq;
 using NUnit.Framework;
-using Octopus.Server.Extensibility.Authentication.DirectoryServices;
 using Octopus.Server.Extensibility.Authentication.DirectoryServices.Identities;
 using Octopus.Server.Extensibility.Authentication.Resources.Identities;
 
-namespace DirectoryServices.Tests
+namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.Tests
 {
     [TestFixture]
     public class ClaimsDescriptorsTests
@@ -26,7 +25,7 @@ namespace DirectoryServices.Tests
         [Test]
         public void EnsureAllClaimDescriptorsAreReturnedByTheProvider()
         {
-            var provider = new DirectoryServicesAuthenticationProvider(null);
+            var provider = new DirectoryServicesAuthenticationProvider(null!);
             var creator = new IdentityCreator();
 
             var creatorClaims = creator.Create("test@octopus.com", "testUpn@octopus.com", "octopus\test", "Test User");

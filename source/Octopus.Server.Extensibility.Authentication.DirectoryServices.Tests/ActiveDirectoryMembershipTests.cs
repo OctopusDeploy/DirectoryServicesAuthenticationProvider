@@ -3,7 +3,7 @@ using NUnit.Framework;
 using Octopus.Diagnostics;
 using Octopus.Server.Extensibility.Authentication.DirectoryServices.DirectoryServices;
 
-namespace DirectoryServices.Tests
+namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.Tests
 {
     [TestFixture]
     public class ActiveDirectoryMembershipTests

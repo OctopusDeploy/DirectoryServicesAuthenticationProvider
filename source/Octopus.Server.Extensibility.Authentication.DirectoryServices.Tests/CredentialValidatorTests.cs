@@ -17,16 +17,16 @@ using Octopus.Server.MessageContracts;
 using Octopus.Server.MessageContracts.Features.Users;
 using Shouldly;
 
-namespace DirectoryServices.Tests
+namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.Tests
 {
     [TestFixture]
     public class CredentialValidatorTests
     {
-        IDirectoryServicesConfigurationStore directoryServicesConfigurationStore;
-        IUpdateableUserStore updateableUserStore;
-        IDirectoryServicesService directoryServicesService;
-        DirectoryServicesCredentialValidator validator;
-        IdentityCreator identityCreator;
+        IDirectoryServicesConfigurationStore directoryServicesConfigurationStore = null!;
+        IUpdateableUserStore updateableUserStore = null!;
+        IDirectoryServicesService directoryServicesService = null!;
+        IDirectoryServicesCredentialValidator validator = null!;
+        IdentityCreator identityCreator = null!;
 
         [SetUp]
         public void SetUp()
@@ -271,6 +271,9 @@ namespace DirectoryServices.Tests
             {
                 Id = id;
                 Username = username;
+                IdentificationToken = Guid.NewGuid();
+                DisplayName = "test user";
+                EmailAddress = "testuser@octopus.com";
                 Identities = new HashSet<Identity>(new [] {identity});
             }
 
@@ -281,7 +284,6 @@ namespace DirectoryServices.Tests
             public string EmailAddress { get; set; }
             public bool IsService { get; set; }
             public bool IsActive { get; set; }
-            public ReferenceCollection ExternalIdentifiers { get; }
             public HashSet<Identity> Identities { get; }
 
             public void RevokeSessions(DateTimeOffset validFrom)

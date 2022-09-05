@@ -91,7 +91,7 @@ class Build : NukeBuild
             Logger.Info("Packing Directory Services Authentication Provider v{0}", OctoVersionInfo.FullSemVer);
 
             DotNetPack(_ => _
-                .SetProject(SourceDirectory / "Server" / "Server.csproj")
+                .SetProject(SourceDirectory / "Octopus.Server.Extensibility.Authentication.DirectoryServices" / "Octopus.Server.Extensibility.Authentication.DirectoryServices.csproj")
                 .SetVersion(OctoVersionInfo.FullSemVer)
                 .SetConfiguration(Configuration)
                 .SetOutputDirectory(ArtifactsDirectory)
@@ -102,7 +102,7 @@ class Build : NukeBuild
                 .SetProperty("NuspecProperties", $"Version={OctoVersionInfo.NuGetVersion}"));
 
             DotNetPack(_ => _
-                .SetProject(SourceDirectory / "Client" / "Client.csproj")
+                .SetProject(SourceDirectory / "Octopus.Client.Extensibility.Authentication.DirectoryServices" / "Octopus.Client.Extensibility.Authentication.DirectoryServices.csproj")
                 .SetVersion(OctoVersionInfo.FullSemVer)
                 .SetConfiguration(Configuration)
                 .SetOutputDirectory(ArtifactsDirectory)

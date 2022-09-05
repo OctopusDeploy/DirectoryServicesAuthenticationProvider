@@ -2,10 +2,8 @@ using System;
 using System.Linq;
 using Assent;
 using NUnit.Framework;
-using NUnit.Framework.Internal;
-using Octopus.Server.Extensibility.Authentication.DirectoryServices;
 
-namespace DirectoryServices.Tests
+namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.Tests
 {
     [TestFixture]
     public class OnlyExposeWhatIsNecessary

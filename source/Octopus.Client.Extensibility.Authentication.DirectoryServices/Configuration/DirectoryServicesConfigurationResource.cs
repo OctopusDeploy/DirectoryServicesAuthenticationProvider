@@ -13,7 +13,7 @@ namespace Octopus.Client.Extensibility.Authentication.DirectoryServices.Configur
         }
 
         [Writeable]
-        public string ActiveDirectoryContainer { get; set; }
+        public string? ActiveDirectoryContainer { get; set; }
 
         [Writeable]
         public AuthenticationSchemes AuthenticationScheme { get; set; }

@@ -5,7 +5,7 @@ using Octopus.Server.Extensibility.Authentication.DirectoryServices.IntegratedAu
 using Octopus.Time;
 using Shouldly;
 
-namespace DirectoryServices.Tests
+namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.Tests
 {
     [TestFixture]
     public class IntegratedChallengeCoordinatorTests

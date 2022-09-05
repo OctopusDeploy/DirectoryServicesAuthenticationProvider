@@ -1,5 +1,6 @@
 using System;
 using System.DirectoryServices.AccountManagement;
+using System.Runtime.Versioning;
 using System.Security.Principal;
 using System.Threading;
 using NSubstitute;
@@ -10,15 +11,16 @@ using Octopus.Server.Extensibility.Authentication.DirectoryServices.Configuratio
 using Octopus.Server.Extensibility.Authentication.DirectoryServices.DirectoryServices;
 using Shouldly;
 
-namespace DirectoryServices.Tests
+namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.Tests
 {
+    [SupportedOSPlatform("Windows")]
     public class DirectoryServicesExternalSecurityGroupLocatorTests
     {
-        const string groupSid = "S-1-5-32-544";
+        const string GroupSid = "S-1-5-32-544";
 
-        DirectoryServicesExternalSecurityGroupLocator locator;
-        IUserPrincipalFinder userPrincipalFinder;
-        ISystemLog log;
+        IDirectoryServicesExternalSecurityGroupLocator locator = null!;
+        IUserPrincipalFinder userPrincipalFinder = null!;
+        ISystemLog log = null!;
 
         [SetUp]
         public void SetUp()
@@ -49,7 +51,7 @@ namespace DirectoryServices.Tests
         [Test]
         public void GetGroupIdsForUser_NotFound()
         {
-            userPrincipalFinder.FindByIdentity(Arg.Any<PrincipalContext>(), Arg.Any<string>()).Returns((IUserPrincipalWrapper) null);
+            userPrincipalFinder.FindByIdentity(Arg.Any<PrincipalContext>(), Arg.Any<string>()).Returns((IUserPrincipalWrapper) null!);
 
             var result = locator.GetGroupIdsForUser("Bob", CancellationToken.None);
             result.WasAbleToRetrieveGroups.ShouldBeFalse();
@@ -66,11 +68,11 @@ namespace DirectoryServices.Tests
 
             var authGroupsException = new Exception("AuthorizationGroups Exception");
             userPrincipal.GetAuthorizationGroups(CancellationToken.None).ThrowsForAnyArgs(authGroupsException);
-            userPrincipal.GetGroups(CancellationToken.None).Returns(new[] {new FakeGroupPrincipal(groupSid)});
+            userPrincipal.GetGroups(CancellationToken.None).Returns(new[] {new FakeGroupPrincipal(GroupSid)});
 
             var result = locator.GetGroupIdsForUser("Bob", CancellationToken.None);
             result.WasAbleToRetrieveGroups.ShouldBeTrue();
-            result.GroupsIds.ShouldBe(new[] { groupSid});
+            result.GroupsIds.ShouldBe(new[] { GroupSid});
 
             log.Received().Verbose(authGroupsException);
             log.DidNotReceive().Error(Arg.Any<string>());
@@ -107,12 +109,12 @@ namespace DirectoryServices.Tests
             var userPrincipal = Substitute.For<IUserPrincipalWrapper>();
             userPrincipalFinder.FindByIdentity(Arg.Any<PrincipalContext>(), Arg.Any<string>()).Returns(userPrincipal);
 
-            userPrincipal.GetAuthorizationGroups(CancellationToken.None).ReturnsForAnyArgs(new[] {new FakeGroupPrincipal(groupSid)});
+            userPrincipal.GetAuthorizationGroups(CancellationToken.None).ReturnsForAnyArgs(new[] {new FakeGroupPrincipal(GroupSid)});
 
             var result = locator.GetGroupIdsForUser("Bob", CancellationToken.None);
 
             result.WasAbleToRetrieveGroups.ShouldBeTrue();
-            result.GroupsIds.ShouldBe(new[] { groupSid});
+            result.GroupsIds.ShouldBe(new[] { GroupSid});
 
             log.DidNotReceive().Error(Arg.Any<string>());
             log.DidNotReceive().Error(Arg.Any<Exception>());

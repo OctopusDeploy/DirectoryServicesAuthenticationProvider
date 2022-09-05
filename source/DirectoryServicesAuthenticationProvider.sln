@@ -9,11 +9,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		Solution Items\VersionInfo.cs = Solution Items\VersionInfo.cs
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Server", "Server\Server.csproj", "{E56C6DA0-19E3-4DB2-A31B-13E45699D86B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Octopus.Server.Extensibility.Authentication.DirectoryServices", "Octopus.Server.Extensibility.Authentication.DirectoryServices\Octopus.Server.Extensibility.Authentication.DirectoryServices.csproj", "{E56C6DA0-19E3-4DB2-A31B-13E45699D86B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DirectoryServices.Tests", "DirectoryServices.Tests\DirectoryServices.Tests.csproj", "{B1E9500F-FCC4-45F2-A390-0EFDED19A7D1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Octopus.Server.Extensibility.Authentication.DirectoryServices.Tests", "Octopus.Server.Extensibility.Authentication.DirectoryServices.Tests\Octopus.Server.Extensibility.Authentication.DirectoryServices.Tests.csproj", "{B1E9500F-FCC4-45F2-A390-0EFDED19A7D1}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Client", "Client\Client.csproj", "{65FC864D-6EB7-4155-B0F2-491490236FEF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Octopus.Client.Extensibility.Authentication.DirectoryServices", "Octopus.Client.Extensibility.Authentication.DirectoryServices\Octopus.Client.Extensibility.Authentication.DirectoryServices.csproj", "{65FC864D-6EB7-4155-B0F2-491490236FEF}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "_build", "..\build\_build.csproj", "{3C9111ED-9508-4DE5-B8D4-EC3564B8285B}"
 EndProject
