@@ -1,4 +1,5 @@
 using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Negotiate;
@@ -24,7 +25,7 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.Integrat
 
         [AllowAnonymous]
         [HttpGet("integrated-challenge")]
-        public async Task IntegratedChallenge()
+        public async Task IntegratedChallenge(CancellationToken cancellationToken)
         {
             if (!directoryServicesConfigurationStore.GetIsEnabled())
             {
@@ -38,7 +39,7 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.Integrat
             }
             else
             {
-                await integratedAuthenticationHandler.HandleRequest(Request.HttpContext);
+                await integratedAuthenticationHandler.HandleRequest(Request.HttpContext, cancellationToken);
             }
         }
     }

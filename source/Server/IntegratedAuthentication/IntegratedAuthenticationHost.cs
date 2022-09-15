@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using System.Runtime.InteropServices;
+using System.Runtime.Versioning;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -34,6 +34,7 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.Integrat
     /// Changing the authentication scheme in this world requires a restart of all nodes, as the setting has to be set
     /// when the WebHost starts.
     /// </summary>
+    [SupportedOSPlatform("Windows")]
     class IntegratedAuthenticationHost : IShareWebHostLifetime
     {
         readonly ISystemLog log;
@@ -53,57 +54,61 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.Integrat
             this.handler = handler;
         }
 
-        public Task StartAsync()
+        public async Task StartAsync()
         {
             if (configuration.GetWebServer() != WebServer.HttpSys)
             {
                 // This HTTP.sys based integrated authentication endpoint will only work when the server is also
                 // running HTTP.sys because it requires port sharing
-                return Task.CompletedTask;
+                return;
             }
 
             var prefixes = GetListenPrefixes();
 
             var builder = new WebHostBuilder();
 
-            builder.UseHttpSys(options =>
-            {
-                options.Authentication.Schemes = MapAuthenticationScheme();
-
-                // IMPORTANT: we need AllowAnonymous to be true here. If it is false then the ASPNET Core internals
-                // will automatically issue the 401 challenge and we don't get a chance to report meaningful errors
-                // if the challenge fails (the user will get the challenge popup dialog in the browser).
-                options.Authentication.AllowAnonymous = true;
-
-                foreach (var baseUri in prefixes)
+            builder.UseHttpSys(
+                options =>
                 {
-                    var prefix = baseUri.ToString();
+                    options.Authentication.Schemes = MapAuthenticationScheme();
 
-                    if (!baseUri.Host.Contains("."))
+                    // IMPORTANT: we need AllowAnonymous to be true here. If it is false then the ASPNET Core internals
+                    // will automatically issue the 401 challenge and we don't get a chance to report meaningful errors
+                    // if the challenge fails (the user will get the challenge popup dialog in the browser).
+                    options.Authentication.AllowAnonymous = true;
+
+                    foreach (var baseUri in prefixes)
                     {
-                        prefix = prefix.Replace("localhost", "+");
+                        var prefix = baseUri.ToString();
+
+                        if (!baseUri.Host.Contains("."))
+                        {
+                            prefix = prefix.Replace("localhost", "+");
+                        }
+
+                        options.UrlPrefixes.Add(prefix);
                     }
+                });
 
-                    options.UrlPrefixes.Add(prefix);
-                }
-            });
+            builder.Configure(
+                app =>
+                {
+                    // https://docs.microsoft.com/en-us/dotnet/core/compatibility/aspnet-core/6.0/middleware-new-use-overload
+                    app.Run(
+                        context =>
+                        {
+                            if (!configurationStore.GetIsEnabled())
+                            {
+                                context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                                return Task.CompletedTask;
+                            }
 
-             builder.Configure(app =>
-             {
-                 app.Use((context, func) =>
-                 {
-                     if (!configurationStore.GetIsEnabled())
-                     {
-                         context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
-                         return Task.CompletedTask;
-                     }
-
-                     return handler.HandleRequest(context);
-                 });
-             });
+                            return handler.HandleRequest(context, context.RequestAborted);
+                        });
+                });
 
             host = builder.Build();
-            return host.StartAsync();
+            await host.StartAsync();
         }
 
         AuthenticationSchemes MapAuthenticationScheme()
@@ -117,6 +122,7 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.Integrat
                 case System.Net.AuthenticationSchemes.IntegratedWindowsAuthentication:
                     return AuthenticationSchemes.Negotiate | AuthenticationSchemes.NTLM;
             }
+
             return AuthenticationSchemes.None;
         }
 
@@ -152,7 +158,9 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.Integrat
         public async Task StopAsync()
         {
             if (host == null)
+            {
                 return;
+            }
 
             await host.StopAsync();
             host.Dispose();

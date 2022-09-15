@@ -1,3 +1,4 @@
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 
@@ -5,6 +6,6 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.Integrat
 {
     public interface IIntegratedAuthenticationHandler
     {
-        Task HandleRequest(HttpContext context);
+        Task HandleRequest(HttpContext context, CancellationToken cancellationToken);
     }
 }
