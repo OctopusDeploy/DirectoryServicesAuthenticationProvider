@@ -8,6 +8,7 @@ using Nuke.Common.Tools.OctoVersion;
 using Nuke.Common.Utilities.Collections;
 using static Nuke.Common.IO.FileSystemTasks;
 using static Nuke.Common.Tools.DotNet.DotNetTasks;
+using Serilog;
 
 [UnsetVisualStudioEnvironmentVariables]
 class Build : NukeBuild
@@ -51,7 +52,7 @@ class Build : NukeBuild
         .DependsOn(Restore)
         .Executes(() =>
         {
-            Logger.Info("Building Directory Services Authentication Provider v{0}", OctoVersionInfo.FullSemVer);
+            Log.Logger.Information("Building Directory Services Authentication Provider v{0}", OctoVersionInfo.FullSemVer);
             
             // This is done to pass the data to github actions
             Console.Out.WriteLine($"::set-output name=semver::{OctoVersionInfo.FullSemVer}");
@@ -80,7 +81,7 @@ class Build : NukeBuild
         .Produces(ArtifactsDirectory / "*.nupkg")
         .Executes(() =>
         {
-            Logger.Info("Packing Directory Services Authentication Provider v{0}", OctoVersionInfo.FullSemVer);
+            Log.Logger.Information("Packing Directory Services Authentication Provider v{0}", OctoVersionInfo.FullSemVer);
 
             DotNetPack(_ => _
                 .SetProject(SourceDirectory / "Server" / "Server.csproj")
