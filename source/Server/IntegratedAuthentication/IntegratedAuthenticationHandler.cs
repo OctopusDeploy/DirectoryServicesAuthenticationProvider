@@ -12,9 +12,9 @@ using Octopus.Diagnostics;
 using Octopus.Server.Extensibility.Authentication.DirectoryServices.DirectoryServices;
 using Octopus.Server.Extensibility.Authentication.HostServices;
 using Octopus.Server.Extensibility.Authentication.Resources;
-using Octopus.Server.Extensibility.Results;
 using Octopus.Server.Extensibility.Extensions.Infrastructure.Web.Api;
 using Octopus.Server.Extensibility.HostServices.Web;
+using Octopus.Server.Extensibility.Results;
 
 namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.IntegratedAuthentication
 {
@@ -31,7 +31,7 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.Integrat
     public enum DomainCookieOptions
     {
         CustomDomain = 0,
-        OriginDomain = 1,
+        OriginDomain = 1
     }
 
     class IntegratedAuthenticationHandler : IIntegratedAuthenticationHandler
@@ -64,7 +64,9 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.Integrat
         static string? GetCorsOrigin(IEnumerable<string> originHeaders, string whitelist)
         {
             if (string.IsNullOrWhiteSpace(whitelist))
+            {
                 return null;
+            }
 
             IEnumerable<string> headersArray = originHeaders == null ? new string[0] : originHeaders.ToArray();
 
@@ -88,17 +90,21 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.Integrat
             context.Response.Headers.Add("Access-Control-Allow-Origin", maybeAllowOrigin);
             context.Response.Headers.Add("Access-Control-Allow-Methods", "GET, PUT, POST, DELETE, OPTIONS");
             context.Response.Headers.Add("Access-Control-Allow-Credentials", "true");
-            context.Response.Headers.Add("Access-Control-Expose-Headers",
+            context.Response.Headers.Add(
+                "Access-Control-Expose-Headers",
                 $"{ApiConstants.OctopusDataVersionHeaderName}, {ApiConstants.OctopusAuthorizationHashHeaderName}, {ApiConstants.OctopusNode}");
-            context.Response.Headers.Add("Access-Control-Allow-Headers",
+            context.Response.Headers.Add(
+                "Access-Control-Allow-Headers",
                 $"cache-control, content-type, x-http-method-override, {ApiConstants.OctopusDataVersionHeaderName}, {ApiConstants.OctopusAuthorizationHashHeaderName}, {ApiConstants.ApiKeyHttpHeaderName}, {ApiConstants.AntiforgeryTokenHttpHeaderName}, {ApiConstants.OctopusUserAgentHeaderName}");
-            context.Request.Headers.TryGetValue("Access-Control-Request-Method",
+            context.Request.Headers.TryGetValue(
+                "Access-Control-Request-Method",
                 out var accessControlRequestMethod);
-            context.Response.Headers.Add("Allow",
+            context.Response.Headers.Add(
+                "Allow",
                 accessControlRequestMethod.Any() ? accessControlRequestMethod.FirstOrDefault() ?? "GET" : "GET");
         }
 
-        public Task HandleRequest(HttpContext context)
+        public async Task HandleRequest(HttpContext context, CancellationToken cancellationToken)
         {
             AddCorsHeaders(context);
             var state = GetLoginState(context);
@@ -106,18 +112,22 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.Integrat
             if (integratedChallengeCoordinator.SetupResponseIfChallengeHasNotSucceededYet(context, state) != IntegratedChallengeTrackerStatus.ChallengeSucceeded)
             {
                 // the coordinator will configure the Response object in the correct way for incomplete challenges
-                return Task.CompletedTask;
+                return;
             }
 
             // Challenge has succeeded!!
 
-            var result = TryAuthenticateRequest(context);
+            var result = TryAuthenticateRequest(context, cancellationToken);
             if (result == null)
-                return Task.CompletedTask;
+            {
+                return;
+            }
 
             var principalIdentificationToken = result.Value?.IdentificationToken;
             if (principalIdentificationToken == null)
+            {
                 throw new InvalidOperationException("The user principal's identification token was ");
+            }
 
             // Build the auth cookies to send back with the response
             var authCookies = tokenIssuer.CreateAuthCookies(principalIdentificationToken.Value, TimeSpan.FromDays(20), context.Request.IsHttps, state?.UsingSecureConnection);
@@ -131,13 +141,14 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.Integrat
                 {
                     // This is a safe redirect, let's go!
                     context.Response.Redirect(redirectAfterLoginTo);
-                    var isLocalhost = String.Compare(context.Request.Host.Value, "localhost", StringComparison.OrdinalIgnoreCase) == 0;
+                    var isLocalhost = string.Compare(context.Request.Host.Value, "localhost", StringComparison.OrdinalIgnoreCase) == 0;
                     foreach (var cookie in authCookies)
                     {
                         //If the current host happens to be localhost, then we don't want to set the cookie domain as this will result in being unable to log in using AD credentials when using localhost
                         context.Response.Cookies.Append(cookie.Name, cookie.Value, ConvertOctoCookieToCookieOptions(cookie, isLocalhost ? DomainCookieOptions.OriginDomain : DomainCookieOptions.CustomDomain));
                     }
-                    return Task.CompletedTask;
+
+                    return;
                 }
 
                 // Just log that we detected a non-local redirect URL, and fall through to the root of the local web site
@@ -153,19 +164,19 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.Integrat
                 context.Response.Cookies.Append(cookie.Name, cookie.Value, ConvertOctoCookieToCookieOptions(cookie, DomainCookieOptions.CustomDomain));
             }
 
-            return Task.CompletedTask;
+            await Task.CompletedTask;
         }
 
         CookieOptions ConvertOctoCookieToCookieOptions(OctoCookie cookie, DomainCookieOptions options)
         {
             var result = new CookieOptions
             {
-                Domain = options == DomainCookieOptions.CustomDomain ? cookie.Domain: null,
+                Domain = options == DomainCookieOptions.CustomDomain ? cookie.Domain : null,
                 Expires = cookie.Expires,
                 Path = cookie.Path,
                 HttpOnly = cookie.HttpOnly,
                 Secure = cookie.Secure,
-                MaxAge = cookie.MaxAge,
+                MaxAge = cookie.MaxAge
             };
 
             return result;
@@ -182,7 +193,7 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.Integrat
             {
                 try
                 {
-                    state = JsonConvert.DeserializeObject<LoginState>(stateString.FirstOrDefault());
+                    state = JsonConvert.DeserializeObject<LoginState>(stateString.FirstOrDefault() ?? string.Empty);
                 }
                 catch (Exception e)
                 {
@@ -194,29 +205,28 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.Integrat
         }
 
         /// <returns>Null if the user is currently unknown.</returns>
-        Result<IUser>? TryAuthenticateRequest(HttpContext context)
+        Result<IUser>? TryAuthenticateRequest(HttpContext context, CancellationToken cancellationToken)
         {
             if (context == null) throw new ArgumentNullException(nameof(context));
             if (context.Request == null) throw new ArgumentNullException($"{nameof(context)}.{nameof(context.Request)}");
 
             // If there is no "RequestPrincipal" in the Context.Items it's not our job to authenticate this request
             var principal = context.User;
-            if (string.IsNullOrWhiteSpace(principal.Identity.Name))
-                return null;
-
-            using (var cts = CancellationTokenSource.CreateLinkedTokenSource(context.RequestAborted, new CancellationTokenSource(TimeSpan.FromMinutes(1)).Token))
+            if (string.IsNullOrWhiteSpace(principal.Identity?.Name))
             {
-                // Attempt to create the user based on the provided System.Security.Principal.IPrincipal
-                var userResult = supportsAutoUserCreationFromPrincipals.GetOrCreateUser(principal, cts.Token);
-
-                // If we couldn't create the user account we also can't authenticate this request
-                if (userResult is FailureResult) return null;
-
-                // Otherwise we should be good to go!
-                var user = userStore.GetByIdentificationToken(((ResultFromExtension<IUser>)userResult).Value.IdentificationToken);
-
-                return Result<IUser>.Success(user);
+                return null;
             }
+
+            // Attempt to create the user based on the provided System.Security.Principal.IPrincipal
+            var userResult = supportsAutoUserCreationFromPrincipals.GetOrCreateUser(principal, cancellationToken);
+
+            // If we couldn't create the user account we also can't authenticate this request
+            if (userResult is FailureResult) return null;
+
+            // Otherwise we should be good to go!
+            var user = userStore.GetByIdentificationToken(((ResultFromExtension<IUser>)userResult).Value.IdentificationToken);
+
+            return Result<IUser>.Success(user);
         }
     }
 }

@@ -22,7 +22,7 @@
 	</dependencies>
   </metadata>
   <files>
-    <file src="..\source\Server\bin\Release\net5.0\*.dll" target="tools" />
+    <file src="..\source\Server\bin\Release\net6.0\*.dll" target="tools" />
     <file src="..\LICENSE.txt" target="" />
     <file src="icon.png" target="images\" />
   </files>
