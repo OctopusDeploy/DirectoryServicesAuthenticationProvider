@@ -109,7 +109,7 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.Integrat
             AddCorsHeaders(context);
             var state = GetLoginState(context);
 
-            if (integratedChallengeCoordinator.SetupResponseIfChallengeHasNotSucceededYet(context, state) != IntegratedChallengeTrackerStatus.ChallengeSucceeded)
+            if (integratedChallengeCoordinator.SetupResponseIfChallengeHasNotSucceededYet(context, state, authenticationConfigurationStore, log) != IntegratedChallengeTrackerStatus.ChallengeSucceeded)
             {
                 // the coordinator will configure the Response object in the correct way for incomplete challenges
                 return;

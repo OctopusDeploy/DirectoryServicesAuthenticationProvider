@@ -4,6 +4,8 @@ using System.Linq;
 using System.Net;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
+using Octopus.Diagnostics;
+using Octopus.Server.Extensibility.Authentication.HostServices;
 using Octopus.Server.Extensibility.Authentication.Resources;
 using Octopus.Time;
 
@@ -23,7 +25,7 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.Integrat
             this.clock = clock;
         }
         
-        public IntegratedChallengeTrackerStatus SetupResponseIfChallengeHasNotSucceededYet(HttpContext context, LoginState? state)
+        public IntegratedChallengeTrackerStatus SetupResponseIfChallengeHasNotSucceededYet(HttpContext context, LoginState? state, IAuthenticationConfigurationStore authenticationConfigurationStore, ISystemLog log)
         {
             // Based on https://github.com/dotnet/runtime/blob/cf63e732fc6fb57c0ea97c1b4ca965acce46343a/src/libraries/System.Net.Security/src/System/Net/Security/NegotiateStreamPal.Windows.cs#L52
             // we're being a bit cautious about using IsAuthenticated
@@ -64,10 +66,29 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.Integrat
                         Secure = state?.UsingSecureConnection ?? false
                     });
                 
-                // we pass back to the original link here (e.g. the deep link that originally triggered the sign in)
+                // we pass back to the original link here if it is a trusted url (e.g. the deep link that originally triggered the sign in)
                 // we normally wouldn't do this without the user being authenticated, but given we know they aren't
                 // authenticated we'll redirect back and rely on the sign in page kicking in again and seeing the cookie.
-                context.Response.Redirect(stateRedirectAfterLoginTo);
+                // If the caller has provided a redirect after successful login, we need to check it is a local address - preventing Open Redirection attacks
+                if (!string.IsNullOrWhiteSpace(state?.RedirectAfterLoginTo))
+                {
+                    var whitelist = authenticationConfigurationStore.GetTrustedRedirectUrls();
+                    if (Requests.IsLocalUrl(state.RedirectAfterLoginTo, whitelist))
+                    {
+                        // This is a safe redirect, let's go!
+                        context.Response.Redirect(state.RedirectAfterLoginTo);
+
+                        return IntegratedChallengeTrackerStatus.ChallengeFailed;
+                    }
+
+                    // Just log that we detected a non-local redirect URL, and fall through to the root of the local web site
+                    log.WarnFormat(
+                        "Prevented potential Open Redirection attack on an integrated authentication challenge, to the non-local url {0}",
+                        state.RedirectAfterLoginTo);
+                }
+
+                // By default, redirect to the root of the local web site
+                context.Response.Redirect(context.Request.PathBase.Value ?? "/");
                 
                 // count this as complete, if the browser comes back on the same connection we'll start over 
                 SetChallengeCompleted(context.Connection.Id);
