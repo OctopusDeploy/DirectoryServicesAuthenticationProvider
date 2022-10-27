@@ -43,7 +43,6 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.Integrat
                 // wrong with the challenge. Most likely to us using HTTPS.sys https://docs.microsoft.com/en-us/aspnet/core/security/authentication/windowsauth?view=aspnetcore-3.1&tabs=visual-studio#httpsys
                 // User mode authentication isn't supported with Kerberos and HTTP.sys. The machine account must be used to decrypt the Kerberos token/ticket that's obtained from Active Directory
                 // SPN KB: https://support.microsoft.com/en-us/help/929650/how-to-use-spns-when-you-configure-web-applications-that-are-hosted-on
-                var stateRedirectAfterLoginTo = state?.RedirectAfterLoginTo;
 
                 // this matches an error structure that the portal currently uses. It is not something the server
                 // currently knows directly about. We may make it a first-class error object at some point to help consistency.
@@ -66,25 +65,27 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.Integrat
                         Secure = state?.UsingSecureConnection ?? false
                     });
                 
+                var stateRedirectAfterLoginTo = state?.RedirectAfterLoginTo;
                 // we pass back to the original link here if it is a trusted url (e.g. the deep link that originally triggered the sign in)
                 // we normally wouldn't do this without the user being authenticated, but given we know they aren't
                 // authenticated we'll redirect back and rely on the sign in page kicking in again and seeing the cookie.
                 // If the caller has provided a redirect after successful login, we need to check it is a local address - preventing Open Redirection attacks
-                if (!string.IsNullOrWhiteSpace(state?.RedirectAfterLoginTo))
+                if (!string.IsNullOrWhiteSpace(stateRedirectAfterLoginTo))
                 {
                     var whitelist = authenticationConfigurationStore.GetTrustedRedirectUrls();
-                    if (Requests.IsLocalUrl(state.RedirectAfterLoginTo, whitelist))
+                    if (Requests.IsLocalUrl(stateRedirectAfterLoginTo, whitelist))
                     {
                         // This is a safe redirect, let's go!
-                        context.Response.Redirect(state.RedirectAfterLoginTo);
+                        context.Response.Redirect(stateRedirectAfterLoginTo);
 
+                        SetChallengeCompleted(context.Connection.Id);
                         return IntegratedChallengeTrackerStatus.ChallengeFailed;
                     }
 
                     // Just log that we detected a non-local redirect URL, and fall through to the root of the local web site
                     log.WarnFormat(
                         "Prevented potential Open Redirection attack on an integrated authentication challenge, to the non-local url {0}",
-                        state.RedirectAfterLoginTo);
+                        stateRedirectAfterLoginTo);
                 }
 
                 // By default, redirect to the root of the local web site
