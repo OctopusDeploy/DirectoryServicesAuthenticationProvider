@@ -66,6 +66,7 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.Integrat
                     });
                 
                 var stateRedirectAfterLoginTo = state?.RedirectAfterLoginTo;
+                var redirectUrl = context.Request.PathBase.Value ?? "/";
                 // we pass back to the original link here if it is a trusted url (e.g. the deep link that originally triggered the sign in)
                 // we normally wouldn't do this without the user being authenticated, but given we know they aren't
                 // authenticated we'll redirect back and rely on the sign in page kicking in again and seeing the cookie.
@@ -76,20 +77,19 @@ namespace Octopus.Server.Extensibility.Authentication.DirectoryServices.Integrat
                     if (Requests.IsLocalUrl(stateRedirectAfterLoginTo, whitelist))
                     {
                         // This is a safe redirect, let's go!
-                        context.Response.Redirect(stateRedirectAfterLoginTo);
-
-                        SetChallengeCompleted(context.Connection.Id);
-                        return IntegratedChallengeTrackerStatus.ChallengeFailed;
+                        redirectUrl = stateRedirectAfterLoginTo;
                     }
-
-                    // Just log that we detected a non-local redirect URL, and fall through to the root of the local web site
-                    log.WarnFormat(
-                        "Prevented potential Open Redirection attack on an integrated authentication challenge, to the non-local url {0}",
-                        stateRedirectAfterLoginTo);
+                    else
+                    {
+                        // Just log that we detected a non-local redirect URL, and fall through to the root of the local web site
+                        log.WarnFormat(
+                            "Prevented potential Open Redirection attack on an integrated authentication challenge, to the non-local url {0}",
+                            stateRedirectAfterLoginTo);
+                    }
                 }
 
                 // By default, redirect to the root of the local web site
-                context.Response.Redirect(context.Request.PathBase.Value ?? "/");
+                context.Response.Redirect(redirectUrl);
                 
                 // count this as complete, if the browser comes back on the same connection we'll start over 
                 SetChallengeCompleted(context.Connection.Id);
